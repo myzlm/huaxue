@@ -204,7 +204,7 @@
         <button data-page="changelog">📋 更新日志</button>
     </div>
     <div class="content" id="contentArea"></div>
-    <div class="footer">版本 2.5 · 古风网页版 · 数据文件请置于同目录</div>
+    <div class="footer">版本 2.6 · 古风网页版 · 数据文件请置于同目录</div>
 </div>
 
 <div class="modal" id="modal">
@@ -324,7 +324,7 @@ async function initData() {
     } catch (err) { console.error('数据加载出错:', err); alert('数据加载失败，请确认txt文件与HTML同目录。'); }
 }
 
-// ==================== 化学解析核心（完美版） ====================
+// ==================== 化学解析核心（完美修复版） ====================
 function parseCharge(token) {
     token = token.trim();
     if (!token) return 0;
@@ -336,7 +336,6 @@ function parseCharge(token) {
 }
 
 function parseCompound(compound) {
-    // 去除空格
     let s = compound.trim();
     let charge = 0;
 
@@ -357,15 +356,11 @@ function parseCompound(compound) {
             if (m) {
                 const num = m[1], sign = m[2];
                 const prefix = s.substring(0, m.index);
-                // 判断数字是电荷数还是下标
                 if (/^[A-Z][a-z]?$/.test(prefix)) {
-                    // 整个数字是电荷
                     charge = parseCharge(num + sign);
                     s = prefix;
                 } else {
-                    // 数字是前一个元素的下标，电荷仅为符号
                     charge = parseCharge(sign);
-                    // s保持原样
                 }
             } else {
                 // 4. 处理末尾单个符号，如 H+、MnO4-
@@ -378,9 +373,8 @@ function parseCompound(compound) {
         }
     }
 
-    // 替换括号、方括号，移除下划线标记
     s = s.replace(/\[/g, '(').replace(/\]/g, ')');
-    s = s.replace(/_/g, '');  // 下划线用于标记下标，移除后数字自动成为下标
+    s = s.replace(/_/g, '');
 
     const elemRegex = /[A-Z][a-z]?/g;
     const stack = [{}];
@@ -425,11 +419,42 @@ function parseCompound(compound) {
     return { counts: stack[0], charge };
 }
 
+// 智能分割方程式：保护电荷符号，避免被 + 误分割
+function normalizeEquation(eqStr) {
+    // 先替换箭头符号
+    let s = eqStr.replace(/=/g, '->');
+    // 保护所有不应被 + 分割的片段：^电荷、数字电荷、括号电荷等
+    const protectedTokens = [];
+    // 匹配 ^ 加 数字 加 符号、_ 加 数字、数字 加 符号、单独的符号前有字母或括号
+    const regex = /(\^\s*\d*[+\-]|_\s*\d+|\d+[+\-]|[A-Za-z\)\]]\s*[+\-]|\([^)]*\)\s*[+\-]?)/g;
+    s = s.replace(regex, (match) => {
+        protectedTokens.push(match);
+        return `<<<${protectedTokens.length-1}>>>`;
+    });
+
+    // 现在 + 只作为分隔符
+    const parts = s.split('->');
+    if (parts.length !== 2) return null;
+    const leftRaw = parts[0].trim();
+    const rightRaw = parts[1].trim();
+
+    const leftTokens = leftRaw.split('+').map(t => t.trim()).filter(t => t);
+    const rightTokens = rightRaw.split('+').map(t => t.trim()).filter(t => t);
+
+    // 还原占位符
+    const restore = str => str.replace(/<<<(\d+)>>>/g, (m, idx) => protectedTokens[parseInt(idx)]);
+    const reactants = leftTokens.map(restore).map(s => s.replace(/^\d+/, '').trim()).filter(s => s);
+    const products = rightTokens.map(restore).map(s => s.replace(/^\d+/, '').trim()).filter(s => s);
+
+    const normEq = reactants.join(' + ') + ' -> ' + products.join(' + ');
+    return { normEq, reactants, products };
+}
+
+// 用于质量计算等需要展示的格式化
 function autoFormatEquation(raw) {
     let s = raw.replace(/=/g, '->');
-    // 保护电荷、上标、下标
     const protectedTokens = [];
-    const regex = /(\^\s*\d*[+\-]?|_\s*\d+|\d+[+\-]|[+\-]\d*|\([^)]*\)[+\-]?)/g;
+    const regex = /(\^\s*\d*[+\-]|_\s*\d+|\d+[+\-]|[+\-]\d*|\([^)]*\)[+\-]?)/g;
     s = s.replace(regex, match => {
         protectedTokens.push(match);
         return `<<<${protectedTokens.length-1}>>>`;
@@ -437,16 +462,6 @@ function autoFormatEquation(raw) {
     s = s.replace(/\+/g, ' + ').replace(/->/g, ' -> ');
     protectedTokens.forEach((token, idx) => { s = s.replace(`<<<${idx}>>>`, token); });
     return s.replace(/\s+/g, ' ').trim();
-}
-
-function normalizeEquation(eqStr) {
-    eqStr = autoFormatEquation(eqStr);
-    if (!eqStr.includes('->')) return null;
-    const [left, right] = eqStr.split('->');
-    const reactants = left.split('+').map(s => s.trim()).filter(s => s).map(s => s.replace(/^\d+/, '').trim());
-    const products = right.split('+').map(s => s.trim()).filter(s => s).map(s => s.replace(/^\d+/, '').trim());
-    const normEq = reactants.join(' + ') + ' -> ' + products.join(' + ');
-    return { normEq, reactants, products };
 }
 
 // BigInt 分数
@@ -465,7 +480,6 @@ class Fraction {
     isZero() { return this.num === 0n; }
     isNegative() { return this.num < 0n; }
     isPositive() { return this.num > 0n; }
-    equals(other) { return this.num === other.num && this.den === other.den; }
 }
 function gcdBigInt(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { [a, b] = [b, a % b]; } return a; }
 
@@ -506,7 +520,6 @@ function balanceNullspace(reactants, products) {
     }
     if (A.length === 0) throw new Error('无元素或电荷信息');
     const rows = A.length, cols = nVars;
-    // 高斯消元
     let M = A.map(row => row.slice());
     let pivotRow = 0, pivotCol = 0;
     while (pivotRow < rows && pivotCol < cols) {
@@ -530,8 +543,6 @@ function balanceNullspace(reactants, products) {
     const freeVars = [];
     for (let c = 0; c < cols; c++) if (!pivotCols.includes(c)) freeVars.push(c);
     if (freeVars.length === 0) throw new Error('无自由变量，无法配平');
-
-    // 尝试每个自由变量，寻找全正系数解
     for (let base of freeVars) {
         const x = Array(cols).fill().map(() => new Fraction(0));
         x[base] = new Fraction(1);
@@ -623,7 +634,7 @@ function addBackButton(parent, target = 'home') {
     parent.appendChild(btn);
 }
 
-// ==================== 首页 ====================
+// ==================== 各功能渲染函数 ====================
 function renderHome(container) {
     container.innerHTML = `
         <div style="text-align:center; padding: 40px 20px;">
@@ -639,7 +650,6 @@ function renderHome(container) {
     `;
 }
 
-// ==================== 元素周期表 ====================
 function renderPeriodic(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -766,7 +776,6 @@ function showElementDetail(elem) {
     modal.style.display = 'flex';
 }
 
-// ==================== 方程式查询 ====================
 function renderEquations(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -819,7 +828,6 @@ function renderEquations(container) {
     applySearch();
 }
 
-// ==================== 分子查询 ====================
 function renderMolecules(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -875,7 +883,6 @@ function renderMolecules(container) {
     applySearch();
 }
 
-// ==================== 原子团查询 ====================
 function renderRadicals(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -929,7 +936,6 @@ function renderRadicals(container) {
     applySearch();
 }
 
-// ==================== 质量计算 ====================
 function renderCalculator(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -1083,7 +1089,6 @@ function renderCalculator(container) {
     };
 }
 
-// ==================== 化学式配平（最终修复版） ====================
 function renderBalance(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -1105,7 +1110,6 @@ function renderBalance(container) {
     `;
     container.appendChild(inputRow);
 
-    // 辅助按钮
     const helperRow = document.createElement('div');
     helperRow.style.marginBottom = '10px';
     helperRow.innerHTML = `
@@ -1238,7 +1242,6 @@ function renderBalance(container) {
     };
 }
 
-// ==================== 练一练 ====================
 function renderPractice(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -1350,7 +1353,6 @@ function renderPractice(container) {
     };
 }
 
-// ==================== 更新日志 ====================
 function renderChangelog(container) {
     addBackButton(container);
     const title = document.createElement('h2');
