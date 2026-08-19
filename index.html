@@ -347,6 +347,7 @@
         .flex-wrap { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
         .text-muted { color: #8a7a5a; }
         .ornament { text-align: center; color: #6a4f2e; font-size: 1.2rem; letter-spacing: 12px; opacity: 0.4; margin: 4px 0 12px 0; user-select: none; }
+        .inline-group { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
     </style>
 </head>
 <body>
@@ -376,6 +377,16 @@
 <div class="modal-overlay" id="modalOverlay"><div class="modal-box"><button class="close-btn" id="modalClose">✕</button><div id="modalContent"></div></div></div>
 
 <script>
+// ============================================================
+//  全局 gcd 函数 (修复配平错误)
+// ============================================================
+function gcd(a, b) {
+    if (a < 0) a = -a;
+    if (b < 0) b = -b;
+    while (b) { const t = b; b = a % b; a = t; }
+    return a;
+}
+
 // ============================================================
 //  全局数据变量 (将从txt加载)
 // ============================================================
@@ -435,29 +446,26 @@ async function loadDataFiles() {
             loadOk = false;
         }
     }
-    // 更新全局
     ELEMENTS_DATA = results.elements || [];
     EQUATIONS_DATA = results.equations || [];
     MOLECULES_DATA = results.molecules || [];
     RADICALS_DATA = results.radicals || [];
     QUESTIONS_DATA = results.questions || [];
-    // 构建原子量
+    // 构建原子量 (保留原始值用于精确，另外生成近似值)
     ATOMIC_WEIGHTS = {};
     ELEMENTS_DATA.forEach(e => {
         const m = parseFloat(e.mass);
         if (!isNaN(m)) ATOMIC_WEIGHTS[e.symbol] = m;
     });
-    // 如果所有数据都为空，提示
     if (!loadOk) {
         document.getElementById('panelBody').innerHTML = `<div class="err">⚠ 数据加载失败，请确保以下文件与HTML同目录：<br>原子.txt, 方程式.txt, 分子.txt, 原子团.txt, 问题.txt</div>`;
     } else {
         document.getElementById('panelBody').innerHTML = `<p style="color:#7ac77a;">✅ 数据加载成功！<br>元素: ${ELEMENTS_DATA.length}, 方程式: ${EQUATIONS_DATA.length}, 分子: ${MOLECULES_DATA.length}, 原子团: ${RADICALS_DATA.length}, 题库: ${QUESTIONS_DATA.length}</p>`;
-        // 默认显示周期表
         renderPeriodicTable();
     }
 }
 
-// 各解析器
+// 各解析器 (同前)
 function parseElements(lines) {
     const data = [];
     for (let i = 1; i < lines.length; i++) {
@@ -475,9 +483,7 @@ function parseElements(lines) {
         const year = parts[9] || '';
         const discoverer = parts[10] || '';
         const props = parts[11] || '';
-        if (symbol && num) {
-            data.push({ symbol, name, num, mass, valence, type, group, period, electron, year, discoverer, props });
-        }
+        if (symbol && num) data.push({ symbol, name, num, mass, valence, type, group, period, electron, year, discoverer, props });
     }
     return data;
 }
@@ -590,7 +596,7 @@ function balanceEquation(reactants, products) {
     }
 }
 
-// 零空间法 (原实现)
+// 零空间法 (原实现, 内部使用 gcd)
 function balanceNullspace(reactants, products) {
     const rParsed = reactants.map(r => parseCompound(r));
     const pParsed = products.map(p => parseCompound(p));
@@ -622,7 +628,6 @@ function balanceNullspace(reactants, products) {
         const g = gcd(Math.abs(n), Math.abs(d));
         return { n: n / g, d: d / g };
     };
-    const gcd = (a,b) => { while(b) { const t = b; b = a % b; a = t; } return a; };
     const fAdd = (a,b) => frac(a.n*b.d + b.n*a.d, a.d*b.d);
     const fMul = (a,b) => frac(a.n*b.n, a.d*b.d);
     const fSub = (a,b) => frac(a.n*b.d - b.n*a.d, a.d*b.d);
@@ -659,7 +664,6 @@ function balanceNullspace(reactants, products) {
     for (let c = 0; c < C; c++) if (!pivotCols.includes(c)) freeVars.push(c);
     if (freeVars.length === 0) throw new Error('无自由变量');
 
-    // 尝试每个自由变量
     for (const base of freeVars) {
         const x = Array(C).fill(frac(0,1));
         x[base] = frac(1,1);
@@ -689,7 +693,7 @@ function balanceNullspace(reactants, products) {
     throw new Error('无全正系数解');
 }
 
-// 暴力枚举备选 (系数1~20)
+// 暴力枚举备选 (系数1~15)
 function balanceBruteForce(reactants, products) {
     const rParsed = reactants.map(r => parseCompound(r));
     const pParsed = products.map(p => parseCompound(p));
@@ -698,9 +702,7 @@ function balanceBruteForce(reactants, products) {
     pParsed.forEach(({counts}) => Object.keys(counts).forEach(e => allElems.add(e)));
     const elemList = Array.from(allElems);
     const nR = reactants.length, nP = products.length;
-    // 暴力尝试系数 1~15
     for (let sum = 2; sum <= 30; sum++) {
-        // 生成所有组合 (nR+nP 个变量，和为sum)
         const vars = nR + nP;
         const combos = [];
         function gen(arr, idx, remaining) {
@@ -726,12 +728,10 @@ function balanceBruteForce(reactants, products) {
                 if (left !== right) { ok = false; break; }
             }
             if (!ok) continue;
-            // 检查电荷
             let leftCharge = 0, rightCharge = 0;
             for (let i = 0; i < nR; i++) leftCharge += rCoef[i] * rParsed[i].charge;
             for (let j = 0; j < nP; j++) rightCharge += pCoef[j] * pParsed[j].charge;
             if (leftCharge !== rightCharge) continue;
-            // 化简系数
             let g = rCoef[0];
             for (let i = 1; i < rCoef.length; i++) g = gcd(g, rCoef[i]);
             for (let j = 0; j < pCoef.length; j++) g = gcd(g, pCoef[j]);
@@ -743,22 +743,33 @@ function balanceBruteForce(reactants, products) {
     throw new Error('暴力枚举未找到正整数解');
 }
 
-// 分子量计算
-function calcMolecularWeight(formula) {
+// ============================================================
+//  分子量计算 (支持精确/近似, 扩展计算)
+// ============================================================
+function calcMolecularWeight(formula, useApprox = false) {
     const { counts } = parseCompound(formula);
     let mass = 0;
     const unknown = [];
+    const weightMap = useApprox ? {} : ATOMIC_WEIGHTS;
+    // 构建近似原子量 (取整)
+    if (useApprox) {
+        for (const [el, val] of Object.entries(ATOMIC_WEIGHTS)) {
+            weightMap[el] = Math.round(val);
+        }
+    } else {
+        Object.assign(weightMap, ATOMIC_WEIGHTS);
+    }
     for (const [el, cnt] of Object.entries(counts)) {
-        const w = ATOMIC_WEIGHTS[el];
+        const w = weightMap[el];
         if (w !== undefined) mass += w * cnt;
         else unknown.push(el);
     }
     if (unknown.length > 0) throw new Error(`未知元素: ${unknown.join(', ')}`);
-    return { mass, counts };
+    return { mass, counts, usedMap: weightMap };
 }
 
 // ============================================================
-//  UI 函数 (与之前类似，但数据来自全局变量)
+//  UI 函数
 // ============================================================
 const panelTitle = document.getElementById('panelTitle');
 const panelBody = document.getElementById('panelBody');
@@ -804,7 +815,7 @@ function getToolbar(inputId) {
     return html;
 }
 
-// 周期表
+// ---------- 周期表 ----------
 function renderPeriodicTable() {
     if (ELEMENTS_DATA.length === 0) {
         showPanel('⚗ 周期表', '<div class="warn">未加载元素数据，请检查原子.txt</div>');
@@ -858,7 +869,6 @@ function renderPeriodicTable() {
     </div><div style="margin-top:8px;color:#6a5a3e;font-size:0.85rem;text-align:center;">点击元素查看详情</div>`;
     showPanel('⚗ 元素周期表', html);
 }
-
 window.showElementDetail = function(symbol) {
     const el = ELEMENTS_DATA.find(e => e.symbol === symbol);
     if (!el) { showModal('<p style="color:#d97a5a;">未找到该元素数据</p>'); return; }
@@ -872,7 +882,7 @@ window.showElementDetail = function(symbol) {
     showModal(html);
 };
 
-// 方程式
+// ---------- 方程式 ----------
 function renderEquations() {
     if (EQUATIONS_DATA.length === 0) {
         showPanel('📜 化学方程式', '<div class="warn">未加载方程式数据，请检查方程式.txt</div>');
@@ -925,7 +935,7 @@ function renderEquations() {
     document.getElementById('eqSearchInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') searchEquations(); });
 }
 
-// 分子查询
+// ---------- 分子查询 ----------
 function renderMolecules() {
     if (MOLECULES_DATA.length === 0) {
         showPanel('🧪 分子查询', '<div class="warn">未加载分子数据，请检查分子.txt</div>');
@@ -983,7 +993,7 @@ function renderMolecules() {
     document.getElementById('molSearchInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') searchMolecules(); });
 }
 
-// 分子量计算
+// ---------- 分子量计算 (升级版) ----------
 function renderWeightCalculator() {
     if (Object.keys(ATOMIC_WEIGHTS).length === 0) {
         showPanel('⚖ 分子量计算', '<div class="warn">未加载原子量数据，请检查原子.txt</div>');
@@ -996,28 +1006,120 @@ function renderWeightCalculator() {
             <div class="input-row">
                 <label>化学式</label>
                 <input type="text" id="weightFormula" placeholder="如 H2O, MnO4-" style="flex:2;">
+            </div>
+            <div class="inline-group">
+                <label>原子量</label>
+                <select id="weightApprox"><option value="exact">精确值</option><option value="approx">近似值 (整数)</option></select>
+                <label>计算模式</label>
+                <select id="weightMode">
+                    <option value="only">仅分子量</option>
+                    <option value="total">由总质量求各元素质量</option>
+                    <option value="element">由某元素质量求总质量及其他</option>
+                </select>
+            </div>
+            <div id="weightExtraInputs" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:4px;">
+                <div id="totalMassGroup" style="display:none;">
+                    <label>总质量</label>
+                    <input type="number" id="totalMass" step="any" value="" style="width:120px;">
+                </div>
+                <div id="elementMassGroup" style="display:none;">
+                    <label>元素符号</label>
+                    <input type="text" id="elemSymbol" style="width:70px;" placeholder="O">
+                    <label>该元素质量</label>
+                    <input type="number" id="elemMass" step="any" value="" style="width:120px;">
+                </div>
+            </div>
+            <div>
                 <button class="btn btn-primary" onclick="calcWeight()">计算</button>
-                <button class="btn" onclick="document.getElementById('weightFormula').value='';document.getElementById('weightResult').innerHTML='';">清空</button>
+                <button class="btn" onclick="clearWeight()">清空</button>
             </div>
         </div>
         <div class="output-box" id="weightResult"><span class="text-muted">输入化学式后点击计算</span></div>
     `;
     showPanel('⚖ 分子量计算', html);
+    // 切换模式显示相应输入
+    document.getElementById('weightMode').addEventListener('change', function() {
+        const mode = this.value;
+        document.getElementById('totalMassGroup').style.display = (mode === 'total') ? 'inline-flex' : 'none';
+        document.getElementById('elementMassGroup').style.display = (mode === 'element') ? 'inline-flex' : 'none';
+    });
+    // 默认隐藏
+    document.getElementById('totalMassGroup').style.display = 'none';
+    document.getElementById('elementMassGroup').style.display = 'none';
+
+    window.clearWeight = function() {
+        document.getElementById('weightFormula').value = '';
+        document.getElementById('totalMass').value = '';
+        document.getElementById('elemSymbol').value = '';
+        document.getElementById('elemMass').value = '';
+        document.getElementById('weightResult').innerHTML = '<span class="text-muted">已清空</span>';
+    };
+
     window.calcWeight = function() {
         const formula = document.getElementById('weightFormula').value.trim();
         const box = document.getElementById('weightResult');
         if (!formula) { box.innerHTML = '<span class="warn">请输入化学式</span>'; return; }
+        const useApprox = document.getElementById('weightApprox').value === 'approx';
+        const mode = document.getElementById('weightMode').value;
         try {
-            const { mass, counts } = calcMolecularWeight(formula);
+            const { mass, counts, usedMap } = calcMolecularWeight(formula, useApprox);
             let h = `<div style="color:#eace9f;font-weight:700;">${formula} 的相对质量 = ${mass.toFixed(4)}</div>`;
-            h += `<div style="margin-top:6px;color:#d4c09a;">元素组成:</div>`;
+            h += `<div style="margin-top:6px;color:#d4c09a;">元素组成 (${useApprox?'近似':'精确'}原子量):</div>`;
             for (const [el, cnt] of Object.entries(counts)) {
-                const w = ATOMIC_WEIGHTS[el] || 0;
+                const w = usedMap[el] || 0;
                 const frac = (w * cnt / mass * 100).toFixed(2);
                 h += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #2f1f0e;padding:2px 0;">
                         <span>${el} (×${cnt})</span>
                         <span>${(w*cnt).toFixed(4)}  (${frac}%)</span>
                       </div>`;
+            }
+            // 扩展计算
+            if (mode === 'total') {
+                const totalInput = document.getElementById('totalMass').value.trim();
+                if (totalInput) {
+                    const totalMass = parseFloat(totalInput);
+                    if (!isNaN(totalMass) && totalMass > 0) {
+                        const factor = totalMass / mass;
+                        h += `<div style="margin-top:12px;border-top:1px solid #6a4f2e;padding-top:8px;">📊 总质量 = ${totalMass}</div>`;
+                        for (const [el, cnt] of Object.entries(counts)) {
+                            const w = usedMap[el] || 0;
+                            const elMass = w * cnt * factor;
+                            h += `<div style="display:flex;justify-content:space-between;padding:2px 0;">
+                                    <span>${el}</span>
+                                    <span>${elMass.toFixed(4)}</span>
+                                  </div>`;
+                        }
+                    }
+                }
+            } else if (mode === 'element') {
+                const sym = document.getElementById('elemSymbol').value.trim();
+                const massInput = document.getElementById('elemMass').value.trim();
+                if (sym && massInput) {
+                    const elMass = parseFloat(massInput);
+                    if (!isNaN(elMass) && elMass > 0) {
+                        const cnt = counts[sym];
+                        if (!cnt) {
+                            h += `<div class="warn" style="margin-top:8px;">⚠ 元素 ${sym} 不在该化学式中</div>`;
+                        } else {
+                            const w = usedMap[sym] || 0;
+                            if (w === 0) { h += `<div class="err">元素 ${sym} 原子量为0</div>`; }
+                            else {
+                                const factor = elMass / (w * cnt);
+                                const totalMass = factor * mass;
+                                h += `<div style="margin-top:12px;border-top:1px solid #6a4f2e;padding-top:8px;">
+                                        📊 由 ${sym} 质量 ${elMass} 推算，总质量 = ${totalMass.toFixed(4)}</div>`;
+                                for (const [el, c] of Object.entries(counts)) {
+                                    const w2 = usedMap[el] || 0;
+                                    const mass2 = w2 * c * factor;
+                                    h += `<div style="display:flex;justify-content:space-between;padding:2px 0;">
+                                            <span>${el}</span>
+                                            <span>${mass2.toFixed(4)}</span>
+                                          </div>`;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             box.innerHTML = h;
         } catch (e) {
@@ -1027,9 +1129,8 @@ function renderWeightCalculator() {
     document.getElementById('weightFormula')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') calcWeight(); });
 }
 
-// 配平
+// ---------- 配平 ----------
 function renderBalance() {
-    // 配平不需要原子量，但需要解析，所以只要有数据即可
     let html = `
         <div style="color:#a6885a;margin-bottom:12px;font-size:0.95rem;">用 '+' 连接物质，'->' 或 '=' 表示箭头。支持离子电荷如 MnO4-、Fe3+</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
@@ -1104,7 +1205,7 @@ function renderBalance() {
     document.getElementById('balanceInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') doBalance(); });
 }
 
-// 原子团
+// ---------- 原子团 ----------
 function renderRadicals() {
     if (RADICALS_DATA.length === 0) {
         showPanel('🔮 原子团', '<div class="warn">未加载原子团数据，请检查原子团.txt</div>');
@@ -1151,7 +1252,7 @@ function renderRadicals() {
     document.getElementById('radSearchInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') searchRadicals(); });
 }
 
-// 练一练
+// ---------- 练一练 ----------
 function renderPractice() {
     if (QUESTIONS_DATA.length === 0) {
         showPanel('📝 练一练', '<div class="warn">未加载题库，请检查问题.txt</div>');
@@ -1240,7 +1341,7 @@ function renderPractice() {
     };
 }
 
-// 关于
+// ---------- 关于 ----------
 function renderAbout() {
     let html = `
         <div style="text-align:center;padding:20px 0;">
@@ -1250,7 +1351,8 @@ function renderAbout() {
                 <p><strong style="color:#eace9f;">版本</strong> 2.0 · 纯前端</p>
                 <p><strong style="color:#eace9f;">特色</strong> 周期表 · 方程式 · 分子量 · 配平 · 原子团 · 练一练</p>
                 <p><strong style="color:#eace9f;">数据</strong> 从同目录 txt 文件加载</p>
-                <p><strong style="color:#eace9f;">配平算法</strong> 零空间法 + 暴力枚举备选</p>
+                <p><strong style="color:#eace9f;">配平算法</strong> 零空间法 + 暴力枚举备选 (已修复 gcd)</p>
+                <p><strong style="color:#eace9f;">分子量计算</strong> 支持精确/近似，可由总质量或元素质量反推</p>
                 <p><strong style="color:#eace9f;">风格</strong> 古风 · 墨韵 · 雅致</p>
                 <p style="margin-top:12px;color:#6a5a3e;font-size:0.9rem;">｜ 格物致知  ·  化育万物 ｜</p>
             </div>
