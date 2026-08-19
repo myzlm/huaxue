@@ -6,7 +6,7 @@
     <title>化学世界 · 古风</title>
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
     <style>
-        /* ===== 全局古风样式 (不变) ===== */
+        /* ===== 全局古风样式 ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Noto Serif SC', 'Ma Shan Zheng', serif;
@@ -751,7 +751,6 @@ function calcMolecularWeight(formula, useApprox = false) {
     let mass = 0;
     const unknown = [];
     const weightMap = useApprox ? {} : ATOMIC_WEIGHTS;
-    // 构建近似原子量 (取整)
     if (useApprox) {
         for (const [el, val] of Object.entries(ATOMIC_WEIGHTS)) {
             weightMap[el] = Math.round(val);
@@ -1129,7 +1128,7 @@ function renderWeightCalculator() {
     document.getElementById('weightFormula')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') calcWeight(); });
 }
 
-// ---------- 配平 ----------
+// ---------- 配平 (无示例按钮) ----------
 function renderBalance() {
     let html = `
         <div style="color:#a6885a;margin-bottom:12px;font-size:0.95rem;">用 '+' 连接物质，'->' 或 '=' 表示箭头。支持离子电荷如 MnO4-、Fe3+</div>
@@ -1143,17 +1142,10 @@ function renderBalance() {
         <div class="flex-wrap" style="margin-bottom:12px;">
             <button class="btn btn-primary" onclick="doBalance()">⚡ 配平</button>
             <button class="btn" onclick="document.getElementById('balanceInput').value='';document.getElementById('balanceResult').innerHTML='';">清空</button>
-            <button class="btn btn-gold" onclick="setBalanceExample('2KMnO4 + 5H2O2 + 3H2SO4 -> 2MnSO4 + K2SO4 + 5O2 + 8H2O')">高锰酸钾+双氧水</button>
-            <button class="btn btn-gold" onclick="setBalanceExample('MnO4- + H2C2O4 + H+ -> Mn2+ + CO2 + H2O')">草酸+高锰酸钾</button>
-            <button class="btn btn-gold" onclick="setBalanceExample('Cu + HNO3 -> Cu(NO3)2 + NO + H2O')">铜+稀硝酸</button>
         </div>
         <div class="output-box" id="balanceResult"><span class="text-muted">输入方程式后点击配平</span></div>
     `;
     showPanel('⚡ 化学式配平', html);
-    window.setBalanceExample = function(eq) {
-        document.getElementById('balanceInput').value = eq;
-        doBalance();
-    };
     window.doBalance = function() {
         const input = document.getElementById('balanceInput').value.trim();
         const box = document.getElementById('balanceResult');
