@@ -6,7 +6,7 @@
     <title>化学世界 · 古风雅集</title>
     <style>
         :root {
-            --bg: #f5efe0;
+            --bg: #efe8d8;
             --panel: #fdfaf3;
             --text: #2c2c2c;
             --accent: #b03a2e;
@@ -14,10 +14,10 @@
             --gold: #c9a84c;
             --ink: #1a1a1a;
             --border: #d4c5a9;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
             --font-title: 'STKaiti', 'KaiTi', '楷体', '华文楷体', serif;
             --font-body: 'STSong', 'SimSun', '宋体', serif;
-            --radius: 8px;
+            --radius: 10px;
         }
         * {
             margin: 0;
@@ -34,10 +34,9 @@
             align-items: center;
             position: relative;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 20% 30%, rgba(200,180,150,0.2) 0%, transparent 30%),
-                              radial-gradient(circle at 80% 70%, rgba(200,180,150,0.3) 0%, transparent 40%);
+            background-image: radial-gradient(circle at 20% 30%, rgba(200,180,150,0.25) 0%, transparent 30%),
+                              radial-gradient(circle at 80% 70%, rgba(200,180,150,0.35) 0%, transparent 40%);
         }
-        /* 粒子背景 */
         #particles-canvas {
             position: fixed;
             top: 0;
@@ -47,52 +46,19 @@
             pointer-events: none;
             z-index: 0;
         }
-        /* 打字特效容器 */
-        .typewriter-effect {
-            position: fixed;
-            z-index: 1001;
-            pointer-events: none;
-            font-family: var(--font-title);
-            font-size: 1.2rem;
-            color: var(--accent);
-            background: rgba(255, 248, 230, 0.85);
-            border: 1px solid var(--gold);
-            border-radius: 12px;
-            padding: 8px 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.5s;
-            backdrop-filter: blur(3px);
-        }
-        #tw-top-right {
-            top: 20px;
-            right: 20px;
-        }
-        #tw-bottom-right {
-            bottom: 20px;
-            right: 20px;
-        }
-        #tw-top-left {
-            top: 20px;
-            left: 20px;
-        }
-        .typewriter-effect.show {
-            opacity: 1;
-        }
         #app {
             width: 95%;
             max-width: 1200px;
-            background: var(--panel);
+            background: rgba(253, 250, 243, 0.95);
             margin: 20px auto;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15), 0 3px 10px rgba(176,58,46,0.1);
+            padding: 20px;
             position: relative;
             z-index: 10;
             overflow: hidden;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
         }
         #app::before {
             content: '';
@@ -100,26 +66,21 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent));
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent), var(--gold), var(--accent));
             z-index: 2;
         }
         #app::after {
             content: '';
             position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border: 2px solid rgba(185, 140, 70, 0.3);
-            border-radius: 10px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
             pointer-events: none;
             z-index: 1;
-            animation: borderGlow 5s ease-in-out infinite;
-        }
-        @keyframes borderGlow {
-            0%, 100% { border-color: rgba(185, 140, 70, 0.3); box-shadow: 0 0 15px rgba(185, 140, 70, 0.1); }
-            50% { border-color: rgba(185, 140, 70, 0.8); box-shadow: 0 0 30px rgba(185, 140, 70, 0.4); }
+            border-radius: 16px;
         }
         .header {
             text-align: center;
@@ -133,7 +94,7 @@
             font-family: var(--font-title);
             font-size: 2.8rem;
             color: var(--accent);
-            letter-spacing: 6px;
+            letter-spacing: 8px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 5px;
             animation: titleFloat 3s ease-in-out infinite;
@@ -146,17 +107,12 @@
             font-size: 1rem;
             color: var(--accent2);
             font-style: italic;
-            animation: fadeIn 2s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
         .nav {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 25px;
             position: relative;
             z-index: 2;
@@ -164,15 +120,15 @@
         .nav button {
             padding: 10px 18px;
             font-family: var(--font-title);
-            font-size: 1.1rem;
+            font-size: 1rem;
             background: #fff;
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
             color: var(--text);
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            min-width: 100px;
+            min-width: 90px;
             position: relative;
             overflow: hidden;
         }
@@ -189,8 +145,8 @@
             transition: width 0.5s, height 0.5s;
         }
         .nav button:hover::after {
-            width: 200px;
-            height: 200px;
+            width: 180px;
+            height: 180px;
         }
         .nav button:hover {
             background: var(--accent);
@@ -206,7 +162,7 @@
             box-shadow: 0 0 15px rgba(176, 58, 46, 0.6);
         }
         .content {
-            background: rgba(255,255,255,0.7);
+            background: rgba(255, 255, 255, 0.75);
             border-radius: var(--radius);
             padding: 20px;
             min-height: 400px;
@@ -214,6 +170,7 @@
             position: relative;
             z-index: 2;
             animation: fadeSlideUp 0.5s ease-out;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.5);
         }
         @keyframes fadeSlideUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -429,22 +386,11 @@
             .header h1 {
                 font-size: 2rem;
             }
-            .typewriter-effect {
-                font-size: 1rem;
-                padding: 5px 10px;
-            }
-            #tw-top-right { top: 10px; right: 10px; }
-            #tw-bottom-right { bottom: 10px; right: 10px; }
-            #tw-top-left { top: 10px; left: 10px; }
         }
     </style>
 </head>
 <body>
 <canvas id="particles-canvas"></canvas>
-<!-- 打字特效元素 -->
-<div id="tw-top-right" class="typewriter-effect"></div>
-<div id="tw-bottom-right" class="typewriter-effect"></div>
-<div id="tw-top-left" class="typewriter-effect"></div>
 
 <div id="app">
     <div class="header">
@@ -462,15 +408,10 @@
         <button data-page="practice">✍️ 练一练</button>
         <button data-page="changelog">📋 更新日志</button>
     </div>
-    <div class="content" id="contentArea">
-        <!-- 动态内容区域 -->
-    </div>
-    <div class="footer">
-        版本 2.2 · 古风网页版 · 数据文件请置于同目录
-    </div>
+    <div class="content" id="contentArea"></div>
+    <div class="footer">版本 2.3 · 古风网页版 · 数据文件请置于同目录</div>
 </div>
 
-<!-- 模态框 -->
 <div class="modal" id="modal">
     <div class="modal-content" id="modalContent">
         <span class="close-modal" id="closeModal">&times;</span>
@@ -495,9 +436,7 @@
     resize();
 
     class Particle {
-        constructor() {
-            this.reset();
-        }
+        constructor() { this.reset(); }
         reset() {
             this.x = Math.random() * width;
             this.y = Math.random() * height;
@@ -510,9 +449,7 @@
         update() {
             this.x += this.speedX;
             this.y += this.speedY;
-            if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
-                this.reset();
-            }
+            if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) this.reset();
         }
         draw() {
             ctx.beginPath();
@@ -521,99 +458,17 @@
             ctx.fill();
         }
     }
-
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-        particles.push(new Particle());
-    }
-
+    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
     function animate() {
         ctx.clearRect(0, 0, width, height);
-        particles.forEach(p => {
-            p.update();
-            p.draw();
-        });
+        particles.forEach(p => { p.update(); p.draw(); });
         requestAnimationFrame(animate);
     }
     animate();
 })();
 
-// ==================== 墨韵打字特效 ====================
-const typewriterTexts = {
-    topRight: [
-        '千锤万凿出深山，烈火焚烧若等闲。',
-        '粉骨碎身浑不怕，要留清白在人间。',
-        '化学奥妙，变化无穷。'
-    ],
-    bottomRight: [
-        '格物致知，诚意正心。',
-        '纸上得来终觉浅，绝知此事要躬行。',
-        '问渠那得清如许？为有源头活水来。'
-    ],
-    topLeft: [
-        '路漫漫其修远兮，吾将上下而求索。',
-        '学而不思则罔，思而不学则殆。',
-        '博学之，审问之，慎思之，明辨之，笃行之。'
-    ]
-};
-
-let typewriterTimers = [];
-
-function clearTypewriterTimers() {
-    typewriterTimers.forEach(timer => clearTimeout(timer));
-    typewriterTimers = [];
-}
-
-function typeWriter(element, text, speed = 50, callback) {
-    let i = 0;
-    element.textContent = '';
-    element.classList.add('show');
-    function type() {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            typewriterTimers.push(setTimeout(type, speed));
-        } else {
-            if (callback) callback();
-        }
-    }
-    type();
-}
-
-function triggerTypewriters() {
-    clearTypewriterTimers();
-    const topRight = document.getElementById('tw-top-right');
-    const bottomRight = document.getElementById('tw-bottom-right');
-    const topLeft = document.getElementById('tw-top-left');
-
-    // 隐藏所有
-    [topRight, bottomRight, topLeft].forEach(el => el.classList.remove('show'));
-
-    // 随机选取文本
-    const trText = typewriterTexts.topRight[Math.floor(Math.random() * typewriterTexts.topRight.length)];
-    const brText = typewriterTexts.bottomRight[Math.floor(Math.random() * typewriterTexts.bottomRight.length)];
-    const tlText = typewriterTexts.topLeft[Math.floor(Math.random() * typewriterTexts.topLeft.length)];
-
-    // 开始打字
-    typeWriter(topRight, trText, 60, () => {
-        typewriterTimers.push(setTimeout(() => topRight.classList.remove('show'), 2000));
-    });
-    typeWriter(bottomRight, brText, 60, () => {
-        typewriterTimers.push(setTimeout(() => bottomRight.classList.remove('show'), 2000));
-    });
-    typeWriter(topLeft, tlText, 60, () => {
-        typewriterTimers.push(setTimeout(() => topLeft.classList.remove('show'), 2000));
-    });
-}
-
 // ==================== 数据加载与解析 ====================
-let dataCache = {
-    elements: [],
-    equations: [],
-    questions: [],
-    molecules: [],
-    radicals: [],
-    changelog: ""
-};
+let dataCache = { elements: [], equations: [], questions: [], molecules: [], radicals: [], changelog: "" };
 let atomicWeights = { exact: {}, approx: {} };
 let dataLoaded = false;
 
@@ -644,33 +499,23 @@ function parseElementsCSV(text) {
         let current = '';
         let inQuotes = false;
         for (let ch of line) {
-            if (ch === '"') {
-                inQuotes = !inQuotes;
-            } else if (ch === ',' && !inQuotes) {
-                parts.push(current.trim());
-                current = '';
-            } else {
-                current += ch;
-            }
+            if (ch === '"') { inQuotes = !inQuotes; }
+            else if (ch === ',' && !inQuotes) { parts.push(current.trim()); current = ''; }
+            else { current += ch; }
         }
         if (current) parts.push(current.trim());
         parts.forEach((p, idx) => parts[idx] = p.replace(/^"|"$/g, ''));
         if (parts.length < 6) continue;
         const symbol = parts[0].trim();
-        const nameRaw = parts[1].trim();
-        const name = nameRaw.split('(')[0].trim();
+        const name = parts[1].split('(')[0].trim();
         const num = parts[2].replace(/\D/g, '');
         if (!symbol || !num) continue;
-        const mass = parts[3] || '';
-        const valence = parts[4] || '';
-        const type = parts[5] || '';
-        const group = parts[6] || '';
-        const period = parts[7] || '';
-        const electronConfig = parts[8] || '';
-        const year = parts[9] || '';
-        const discoverer = parts[10] || '';
-        const properties = parts[11] || '';
-        elements.push({ symbol, name, num, mass, valence, type, group, period, electronConfig, year, discoverer, properties });
+        elements.push({
+            symbol, name, num,
+            mass: parts[3] || '', valence: parts[4] || '', type: parts[5] || '',
+            group: parts[6] || '', period: parts[7] || '', electronConfig: parts[8] || '',
+            year: parts[9] || '', discoverer: parts[10] || '', properties: parts[11] || ''
+        });
     }
     elements.sort((a, b) => parseInt(a.num) - parseInt(b.num));
     return elements;
@@ -683,9 +528,7 @@ function parseSimpleCSV(text, minFields = 3) {
         const line = lines[i].trim();
         if (!line) continue;
         const parts = line.split(',').map(p => p.trim());
-        if (parts.length >= minFields) {
-            result.push(parts);
-        }
+        if (parts.length >= minFields) result.push(parts);
     }
     return result;
 }
@@ -693,21 +536,15 @@ function parseSimpleCSV(text, minFields = 3) {
 async function initData() {
     try {
         const [elemText, eqText, qText, molText, radText, logText] = await Promise.all([
-            loadDataFile('原子.txt'),
-            loadDataFile('方程式.txt'),
-            loadDataFile('问题.txt'),
-            loadDataFile('分子.txt'),
-            loadDataFile('原子团.txt'),
-            loadDataFile('更新日志.txt')
+            loadDataFile('原子.txt'), loadDataFile('方程式.txt'), loadDataFile('问题.txt'),
+            loadDataFile('分子.txt'), loadDataFile('原子团.txt'), loadDataFile('更新日志.txt')
         ]);
-
         if (elemText) dataCache.elements = parseElementsCSV(elemText);
         if (eqText) dataCache.equations = parseSimpleCSV(eqText, 3).map(p => ({ type: p[0], equation: p[1], desc: p[2] || '' }));
         if (qText) dataCache.questions = parseSimpleCSV(qText, 8).map(p => ({ type: p[0], question: p[1], A: p[2], B: p[3], C: p[4], D: p[5], answer: p[6], explain: p[7] || '' }));
         if (molText) dataCache.molecules = parseSimpleCSV(molText, 5).map(p => ({ name: p[0], formula: p[1], weight: p[2], type: p[3], desc: p[4] || '' }));
         if (radText) dataCache.radicals = parseSimpleCSV(radText, 4).map(p => ({ name: p[0], formula: p[1], charge: p[2], desc: p[3] || '' }));
         if (logText) dataCache.changelog = logText;
-
         atomicWeights = { exact: {}, approx: {} };
         dataCache.elements.forEach(e => {
             const match = e.mass.match(/[\d.]+/);
@@ -724,30 +561,60 @@ async function initData() {
     }
 }
 
-// ==================== 化学解析核心 ====================
+// ==================== 化学解析核心（修复电荷识别） ====================
+function parseCharge(token) {
+    token = token.trim();
+    if (!token) return 0;
+    let sign = 1;
+    let numStr = '';
+    if (token.includes('+')) { sign = 1; numStr = token.replace('+', ''); }
+    else if (token.includes('-')) { sign = -1; numStr = token.replace('-', ''); }
+    const num = numStr ? parseInt(numStr) : 1;
+    return sign * num;
+}
+
 function parseCompound(compound) {
     let charge = 0;
     let s = compound.trim();
-    const chargePatterns = [
-        { regex: /\((\d+[+-])\)$/, func: m => parseCharge(m[1]) },
-        { regex: /\(([+-]\d*)\)$/, func: m => parseCharge(m[1]) },
-        { regex: /\^(\d+[+-])$/, func: m => parseCharge(m[1]) },
-        { regex: /\^([+-]\d*)$/, func: m => parseCharge(m[1]) },
-        { regex: /(\d+[+-])$/, func: m => parseCharge(m[1]) },
-        { regex: /([+-]\d*)$/, func: m => parseCharge(m[1]) },
-    ];
-    for (let pat of chargePatterns) {
-        const m = s.match(pat.regex);
+
+    // 1. 处理 ^ 电荷：如 SO4^2-、Fe^3+
+    let m = s.match(/\^(\d+[+-])$/) || s.match(/\^([+-]\d*)$/);
+    if (m) {
+        charge = parseCharge(m[1]);
+        s = s.substring(0, m.index);
+    } else {
+        // 2. 处理括号电荷：如 (SO4)2-、(SO4)-
+        m = s.match(/\((\d+[+-])\)$/) || s.match(/\(([+-]\d*)\)$/);
         if (m) {
-            charge = pat.func(m);
+            charge = parseCharge(m[1]);
             s = s.substring(0, m.index);
-            break;
+        } else {
+            // 3. 处理末尾数字+符号：如 Fe3+、MnO4-
+            m = s.match(/(\d+)([+-])$/);
+            if (m) {
+                const num = m[1];
+                const sign = m[2];
+                const beforeNum = s[m.index - 1] || '';
+                if (/[A-Z]/.test(beforeNum)) {
+                    // 数字是前一个元素的下标，符号是电荷
+                    charge = parseCharge(sign);
+                    // s 保持不变（保留数字作为下标）
+                } else {
+                    // 数字+符号整体是电荷
+                    charge = parseCharge(num + sign);
+                    s = s.substring(0, m.index);
+                }
+            } else {
+                // 4. 处理末尾单个符号：如 H+、MnO4-
+                m = s.match(/([+-])$/);
+                if (m) {
+                    charge = parseCharge(m[1]);
+                    s = s.substring(0, m.index);
+                }
+            }
         }
     }
-    if (charge === 0) {
-        if (s.endsWith('+')) { charge = 1; s = s.slice(0, -1); }
-        else if (s.endsWith('-')) { charge = -1; s = s.slice(0, -1); }
-    }
+
     s = s.replace(/\[/g, '(').replace(/\]/g, ')');
     const elemRegex = /[A-Z][a-z]?/g;
     const stack = [{}];
@@ -793,17 +660,6 @@ function parseCompound(compound) {
     return { counts: stack[0], charge };
 }
 
-function parseCharge(token) {
-    token = token.trim();
-    if (!token) return 0;
-    let sign = 1;
-    let numStr = '';
-    if (token.includes('+')) { sign = 1; numStr = token.replace('+', ''); }
-    else if (token.includes('-')) { sign = -1; numStr = token.replace('-', ''); }
-    const num = numStr ? parseInt(numStr) : 1;
-    return sign * num;
-}
-
 function autoFormatEquation(raw) {
     let s = raw.replace(/=/g, '->');
     const chargeRegex = /(\^\s*\d+[+\-]|\^\s*[+\-]\d*|\(\s*\d+[+\-]\s*\)|\(\s*[+\-]\d*\s*\)|\d+[+\-]|[+\-]\d*)/g;
@@ -813,9 +669,7 @@ function autoFormatEquation(raw) {
         return `<<<${charges.length-1}>>>`;
     });
     s = s.replace(/\+/g, ' + ').replace(/->/g, ' -> ');
-    charges.forEach((chg, idx) => {
-        s = s.replace(`<<<${idx}>>>`, chg);
-    });
+    charges.forEach((chg, idx) => { s = s.replace(`<<<${idx}>>>`, chg); });
     return s.replace(/\s+/g, ' ').trim();
 }
 
@@ -829,6 +683,7 @@ function normalizeEquation(eqStr) {
     return { normEq, reactants, products };
 }
 
+// BigInt 分数
 class Fraction {
     constructor(num, den = 1n) {
         if (typeof num === 'number') num = BigInt(num);
@@ -838,14 +693,13 @@ class Fraction {
         this.num = num / g;
         this.den = den / g;
     }
-    add(other) { return new Fraction(this.num * other.den + other.num * this.den, this.den * other.den); }
-    sub(other) { return new Fraction(this.num * other.den - other.num * this.den, this.den * other.den); }
-    mul(other) { return new Fraction(this.num * other.num, this.den * other.den); }
-    div(other) { return new Fraction(this.num * other.den, this.den * other.num); }
+    add(o) { return new Fraction(this.num * o.den + o.num * this.den, this.den * o.den); }
+    sub(o) { return new Fraction(this.num * o.den - o.num * this.den, this.den * o.den); }
+    mul(o) { return new Fraction(this.num * o.num, this.den * o.den); }
+    div(o) { return new Fraction(this.num * o.den, this.den * o.num); }
     isZero() { return this.num === 0n; }
     isNegative() { return this.num < 0n; }
     isPositive() { return this.num > 0n; }
-    toNumber() { return Number(this.num) / Number(this.den); }
 }
 function gcdBigInt(a, b) {
     a = a < 0n ? -a : a;
@@ -853,7 +707,6 @@ function gcdBigInt(a, b) {
     while (b) { [a, b] = [b, a % b]; }
     return a;
 }
-function lcmBigInt(a, b) { return (a * b) / gcdBigInt(a, b); }
 
 function fractionArrayToInt(arr) {
     const dens = arr.map(f => f.den);
@@ -906,9 +759,7 @@ function balanceNullspace(reactants, products) {
         for (let r = 0; r < rows; r++) {
             if (r !== pivotRow && !M[r][pivotCol].isZero()) {
                 const factor = M[r][pivotCol];
-                for (let c = pivotCol; c < cols; c++) {
-                    M[r][c] = M[r][c].sub(factor.mul(M[pivotRow][c]));
-                }
+                for (let c = pivotCol; c < cols; c++) M[r][c] = M[r][c].sub(factor.mul(M[pivotRow][c]));
             }
         }
         pivotRow++; pivotCol++;
@@ -916,10 +767,7 @@ function balanceNullspace(reactants, products) {
     const pivotCols = [];
     let r = 0;
     for (let c = 0; c < cols; c++) {
-        if (r < rows && !M[r][c].isZero()) {
-            pivotCols.push(c);
-            r++;
-        }
+        if (r < rows && !M[r][c].isZero()) { pivotCols.push(c); r++; }
     }
     const freeVars = [];
     for (let c = 0; c < cols; c++) if (!pivotCols.includes(c)) freeVars.push(c);
@@ -930,9 +778,7 @@ function balanceNullspace(reactants, products) {
         for (let i = pivotCols.length - 1; i >= 0; i--) {
             const pc = pivotCols[i];
             let total = new Fraction(0);
-            for (let c = pc + 1; c < cols; c++) {
-                total = total.add(M[i][c].mul(x[c]));
-            }
+            for (let c = pc + 1; c < cols; c++) total = total.add(M[i][c].mul(x[c]));
             x[pc] = total.mul(new Fraction(-1));
         }
         let allPositive = true;
@@ -949,7 +795,7 @@ function balanceNullspace(reactants, products) {
             return { rCoeffs: ints.slice(0, nR), pCoeffs: ints.slice(nR) };
         }
     }
-    throw new Error('无全正系数解，反应物/生成物可能不对');
+    throw new Error('无全正系数解');
 }
 
 function verifyBalance(reactants, products, rCoeffs, pCoeffs) {
@@ -1007,8 +853,6 @@ function showPage(pageName) {
         case 'practice': renderPractice(content); break;
         case 'changelog': renderChangelog(content); break;
     }
-    // 触发打字特效
-    triggerTypewriters();
 }
 
 function addBackButton(parent, target = 'home') {
@@ -1019,7 +863,7 @@ function addBackButton(parent, target = 'home') {
     parent.appendChild(btn);
 }
 
-// ==================== 各功能渲染函数（保持不变） ====================
+// ==================== 各功能渲染 ====================
 function renderHome(container) {
     container.innerHTML = `
         <div style="text-align:center; padding: 40px 20px;">
@@ -1095,7 +939,6 @@ function renderPeriodic(container) {
         ['Fr','Ra','Ac','Rf','Db','Sg','Bh','Hs','Mt','Ds','Rg','Cn','Nh','Fl','Mc','Lv','Ts','Og'].forEach((el,i)=>layout[el]=[7,i+1]);
         ['La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu'].forEach((el,i)=>layout[el]=[9,i+4]);
         ['Ac','Th','Pa','U','Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr'].forEach((el,i)=>layout[el]=[10,i+4]);
-
         const elemMap = {};
         filtered.forEach(e => elemMap[e.symbol] = e);
         for (let symbol in layout) {
@@ -1139,7 +982,6 @@ function renderPeriodic(container) {
         document.getElementById('periodicResultInfo').textContent = kw ? `找到 ${filtered.length} 个匹配元素` : `共 ${dataCache.elements.length} 个元素`;
         renderGrid(filtered, highlightSet);
     }
-
     document.getElementById('periodicSearchBtn').onclick = applySearch;
     document.getElementById('periodicClearBtn').onclick = () => { document.getElementById('periodicSearch').value = ''; applySearch(); };
     document.getElementById('periodicSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applySearch(); });
@@ -1215,7 +1057,6 @@ function renderEquations(container) {
         document.getElementById('eqResultInfo').textContent = kw ? `找到 ${filtered.length} 个方程式` : `共 ${dataCache.equations.length} 个方程式`;
         resultBox.innerHTML = filtered.length ? filtered.map((eq, i) => `${i+1}. ${eq.equation}\n   类型: ${eq.type}, 描述: ${eq.desc}\n`).join('\n') : '没有匹配的方程式';
     }
-
     document.getElementById('eqSearchBtn').onclick = applySearch;
     document.getElementById('eqClearBtn').onclick = () => { document.getElementById('eqSearch').value = ''; applySearch(); };
     document.getElementById('eqSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applySearch(); });
@@ -1230,7 +1071,6 @@ function renderMolecules(container) {
     title.style.fontFamily = 'var(--font-title)';
     title.style.color = 'var(--accent)';
     container.appendChild(title);
-
     const searchRow = document.createElement('div');
     searchRow.className = 'search-row';
     searchRow.innerHTML = `
@@ -1273,7 +1113,6 @@ function renderMolecules(container) {
         document.getElementById('molResultInfo').textContent = kw ? `找到 ${filtered.length} 个分子` : `共 ${dataCache.molecules.length} 个分子`;
         resultBox.innerHTML = filtered.length ? filtered.map((m, i) => `${i+1}. ${m.name} (${m.formula})\n   分子量: ${m.weight}, 类型: ${m.type}, 描述: ${m.desc}\n`).join('\n') : '没有匹配项';
     }
-
     document.getElementById('molSearchBtn').onclick = applySearch;
     document.getElementById('molClearBtn').onclick = () => { document.getElementById('molSearch').value = ''; applySearch(); };
     document.getElementById('molSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applySearch(); });
@@ -1288,7 +1127,6 @@ function renderRadicals(container) {
     title.style.fontFamily = 'var(--font-title)';
     title.style.color = 'var(--accent)';
     container.appendChild(title);
-
     const searchRow = document.createElement('div');
     searchRow.className = 'search-row';
     searchRow.innerHTML = `
@@ -1329,7 +1167,6 @@ function renderRadicals(container) {
         document.getElementById('radResultInfo').textContent = kw ? `找到 ${filtered.length} 个原子团` : `共 ${dataCache.radicals.length} 个原子团`;
         resultBox.innerHTML = filtered.length ? filtered.map((r, i) => `${i+1}. ${r.name} (${r.formula})\n   电荷: ${r.charge}, 描述: ${r.desc}\n`).join('\n') : '没有匹配项';
     }
-
     document.getElementById('radSearchBtn').onclick = applySearch;
     document.getElementById('radClearBtn').onclick = () => { document.getElementById('radSearch').value = ''; applySearch(); };
     document.getElementById('radSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applySearch(); });
@@ -1485,11 +1322,12 @@ function renderCalculator(container) {
         }
         output += '反应物:\n'; showList(reactants);
         output += '生成物:\n'; showList(products);
-        output += '\n提示: 计量计算请使用“化学式配平”模块。';
+        output += '\n提示: 计量计算请使用"化学式配平"模块。';
         resultBox.innerHTML = output;
     };
 }
 
+// ==================== 化学式配平（核心修复+打字机效果） ====================
 function renderBalance(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -1500,10 +1338,11 @@ function renderBalance(container) {
     container.appendChild(title);
 
     const inputRow = document.createElement('div');
+    inputRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; align-items:center;';
     inputRow.innerHTML = `
-        <label>方程式:</label>
-        <input type="text" id="balanceInput" placeholder="如 MnO4- + H2C2O4 + H+ -> Mn2+ + CO2 + H2O" style="width:400px;">
-        <button class="btn btn-primary" id="balanceBtn">配平</button>
+        <label style="font-weight:bold;">方程式:</label>
+        <input type="text" id="balanceInput" placeholder="如 MnO4- + H2C2O4 + H+ -> Mn2+ + CO2 + H2O" style="flex:1; min-width:250px;">
+        <button class="btn btn-primary" id="balanceBtn">⚡ 配平</button>
         <button class="btn" id="balanceClearBtn">清空</button>
         <button class="btn" id="balanceManualBtn">手动录入</button>
         <button class="btn" id="balanceSaveBtn">保存记录</button>
@@ -1513,9 +1352,9 @@ function renderBalance(container) {
     const exampleRow = document.createElement('div');
     exampleRow.style.marginTop = '8px';
     exampleRow.innerHTML = `
-        <button class="btn" data-ex="MnO4- + H2C2O4 + H+ -> Mn2+ + CO2 + H2O">高锰酸钾草酸</button>
-        <button class="btn" data-ex="KMnO4 + H2O2 + H2SO4 -> MnSO4 + K2SO4 + O2 + H2O">高锰酸钾双氧水</button>
-        <button class="btn" data-ex="Cu + HNO3 -> Cu(NO3)2 + NO + H2O">铜稀硝酸</button>
+        <button class="btn" data-ex="MnO4- + H2C2O4 + H+ -> Mn2+ + CO2 + H2O">例1: 高锰酸钾草酸</button>
+        <button class="btn" data-ex="KMnO4 + H2O2 + H2SO4 -> MnSO4 + K2SO4 + O2 + H2O">例2: 高锰酸钾双氧水</button>
+        <button class="btn" data-ex="Cu + HNO3 -> Cu(NO3)2 + NO + H2O">例3: 铜稀硝酸</button>
     `;
     container.appendChild(exampleRow);
     exampleRow.querySelectorAll('button').forEach(btn => {
@@ -1526,29 +1365,51 @@ function renderBalance(container) {
     resultBox.className = 'result-box';
     resultBox.id = 'balanceResultBox';
     resultBox.style.marginTop = '15px';
-    resultBox.style.minHeight = '200px';
+    resultBox.style.minHeight = '180px';
+    resultBox.style.backgroundColor = '#faf6ee';
     container.appendChild(resultBox);
 
     const verifyLabel = document.createElement('div');
     verifyLabel.id = 'balanceVerifyLabel';
     verifyLabel.style.marginTop = '10px';
+    verifyLabel.style.fontFamily = 'var(--font-body)';
+    verifyLabel.style.fontSize = '0.9rem';
     container.appendChild(verifyLabel);
 
     let currentData = {};
+    let typewriterTimer = null;
+
+    function typeWriterEffect(element, text, speed = 30, callback) {
+        if (typewriterTimer) clearTimeout(typewriterTimer);
+        let i = 0;
+        element.textContent = '';
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                typewriterTimer = setTimeout(type, speed);
+            } else {
+                if (callback) callback();
+            }
+        }
+        type();
+    }
 
     document.getElementById('balanceBtn').onclick = () => {
         const eqStr = document.getElementById('balanceInput').value.trim();
-        if (!eqStr) { resultBox.innerHTML = '请输入方程式'; return; }
+        if (!eqStr) { resultBox.innerHTML = '❌ 请输入方程式'; return; }
         const norm = normalizeEquation(eqStr);
-        if (!norm) { resultBox.innerHTML = '方程式需包含 -> 或 ='; return; }
+        if (!norm) { resultBox.innerHTML = '❌ 方程式需包含 -> 或 ='; return; }
         try {
             const { rCoeffs, pCoeffs } = balanceNullspace(norm.reactants, norm.products);
             const verify = verifyBalance(norm.reactants, norm.products, rCoeffs, pCoeffs);
             const rStr = norm.reactants.map((r, i) => (rCoeffs[i] > 1 ? rCoeffs[i] : '') + r).join(' + ');
             const pStr = norm.products.map((p, i) => (pCoeffs[i] > 1 ? pCoeffs[i] : '') + p).join(' + ');
             const balanced = rStr + ' -> ' + pStr;
-            let output = `⚡ 配平成功\n\n原输入: ${eqStr}\n配平结果: ${balanced}\n反应物系数: [${rCoeffs}]\n生成物系数: [${pCoeffs}]`;
-            resultBox.innerHTML = output;
+
+            const output = `⚡ 配平成功\n\n原输入: ${eqStr}\n配平结果: ${balanced}\n反应物系数: [${rCoeffs}]\n生成物系数: [${pCoeffs}]`;
+            typeWriterEffect(resultBox, output, 20);
+
             verifyLabel.innerHTML = verify.details.replace(/\n/g, '<br>');
             verifyLabel.style.color = verify.balanced ? 'green' : 'red';
             currentData = { reactants: norm.reactants, products: norm.products, rCoeffs, pCoeffs, balancedEq: balanced, verified: verify.balanced };
@@ -1560,6 +1421,7 @@ function renderBalance(container) {
 
     document.getElementById('balanceClearBtn').onclick = () => {
         document.getElementById('balanceInput').value = '';
+        if (typewriterTimer) clearTimeout(typewriterTimer);
         resultBox.innerHTML = '';
         verifyLabel.innerHTML = '';
         currentData = {};
@@ -1589,7 +1451,8 @@ function renderBalance(container) {
         const rStr = norm.reactants.map((r, i) => (rCoeffs[i] > 1 ? rCoeffs[i] : '') + r).join(' + ');
         const pStr = norm.products.map((p, i) => (pCoeffs[i] > 1 ? pCoeffs[i] : '') + p).join(' + ');
         const balanced = rStr + ' -> ' + pStr;
-        resultBox.innerHTML = `✏️ 手动配平结果\n${balanced}\n系数: [${rCoeffs}] -> [${pCoeffs}]`;
+        const output = `✏️ 手动配平结果\n${balanced}\n系数: [${rCoeffs}] -> [${pCoeffs}]`;
+        typeWriterEffect(resultBox, output, 20);
         verifyLabel.innerHTML = verify.details.replace(/\n/g, '<br>');
         verifyLabel.style.color = 'green';
         currentData = { reactants: norm.reactants, products: norm.products, rCoeffs, pCoeffs, balancedEq: balanced, verified: true };
@@ -1616,9 +1479,7 @@ function renderPractice(container) {
         container.innerHTML += '<p>题库为空，请检查问题.txt</p>';
         return;
     }
-
     let currentQuestions = [], currentIndex = 0, score = 0, wrongList = [];
-
     const setupDiv = document.createElement('div');
     setupDiv.innerHTML = `
         <label>学科:</label>
@@ -1636,22 +1497,18 @@ function renderPractice(container) {
     questionLabel.id = 'practiceQuestion';
     questionLabel.style.cssText = 'margin-top:20px; font-size:1.2rem; font-weight:bold;';
     container.appendChild(questionLabel);
-
     const optionsDiv = document.createElement('div');
     optionsDiv.id = 'practiceOptions';
     optionsDiv.style.cssText = 'margin-top:15px;';
     container.appendChild(optionsDiv);
-
     const feedback = document.createElement('div');
     feedback.id = 'practiceFeedback';
     feedback.style.cssText = 'margin-top:15px; color: #888;';
     container.appendChild(feedback);
-
     const progress = document.createElement('div');
     progress.id = 'practiceProgress';
     progress.style.cssText = 'margin-top:10px;';
     container.appendChild(progress);
-
     const submitBtn = document.createElement('button');
     submitBtn.className = 'btn btn-primary';
     submitBtn.textContent = '提交答案';
@@ -1660,7 +1517,6 @@ function renderPractice(container) {
     container.appendChild(submitBtn);
 
     let selectedOption = '';
-
     function startPractice() {
         const type = document.getElementById('practiceType').value;
         let pool = type === 'all' ? dataCache.questions : dataCache.questions.filter(q => q.type === type);
@@ -1676,7 +1532,6 @@ function renderPractice(container) {
         currentIndex = 0; score = 0; wrongList = [];
         showQuestion();
     }
-
     function showQuestion() {
         if (currentIndex >= currentQuestions.length) { showResult(); return; }
         const q = currentQuestions[currentIndex];
@@ -1698,7 +1553,6 @@ function renderPractice(container) {
         feedback.textContent = '';
         progress.textContent = `进度: ${currentIndex + 1}/${currentQuestions.length}  | 得分: ${score}`;
     }
-
     function showResult() {
         const total = currentQuestions.length;
         questionLabel.textContent = '练习结束！';
@@ -1709,19 +1563,14 @@ function renderPractice(container) {
         feedback.style.color = 'var(--accent)';
         progress.textContent = '';
     }
-
     document.getElementById('practiceStart').onclick = startPractice;
     document.getElementById('practiceSubmit').onclick = () => {
         if (!selectedOption) { feedback.textContent = '请选择一个选项'; feedback.style.color = 'red'; return; }
         const q = currentQuestions[currentIndex];
         if (selectedOption === q.answer.trim()) {
-            feedback.textContent = '✅ 正确！';
-            feedback.style.color = 'green';
-            score++;
+            feedback.textContent = '✅ 正确！'; feedback.style.color = 'green'; score++;
         } else {
-            feedback.textContent = `❌ 错误！正确答案 ${q.answer}. ${q.explain}`;
-            feedback.style.color = 'red';
-            wrongList.push(q);
+            feedback.textContent = `❌ 错误！正确答案 ${q.answer}. ${q.explain}`; feedback.style.color = 'red'; wrongList.push(q);
         }
         currentIndex++;
         setTimeout(showQuestion, 1500);
@@ -1735,7 +1584,6 @@ function renderChangelog(container) {
     title.style.fontFamily = 'var(--font-title)';
     title.style.color = 'var(--accent)';
     container.appendChild(title);
-
     const pre = document.createElement('pre');
     pre.style.cssText = 'white-space:pre-wrap; font-family:var(--font-body); background:#faf6ee; padding:15px; border:1px solid var(--border); border-radius:4px; max-height:500px; overflow-y:auto;';
     pre.textContent = dataCache.changelog || '暂无更新日志';
@@ -1749,10 +1597,7 @@ function showModal(html) {
     body.innerHTML = html;
     modal.style.display = 'flex';
 }
-
-document.getElementById('closeModal').onclick = () => {
-    document.getElementById('modal').style.display = 'none';
-};
+document.getElementById('closeModal').onclick = () => { document.getElementById('modal').style.display = 'none'; };
 window.onclick = function(event) {
     if (event.target === document.getElementById('modal')) {
         document.getElementById('modal').style.display = 'none';
