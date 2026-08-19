@@ -1,1394 +1,1690 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>化学世界 · 古风雅集</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>化学世界 · 古风</title>
+    <!-- 引入书法字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
     <style>
-        :root {
-            --bg: #efe8d8;
-            --panel: #fdfaf3;
-            --text: #2c2c2c;
-            --accent: #b03a2e;
-            --accent2: #7b241c;
-            --gold: #c9a84c;
-            --border: #d4c5a9;
-            --shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
-            --font-title: 'STKaiti', 'KaiTi', '楷体', '华文楷体', serif;
-            --font-body: 'STSong', 'SimSun', '宋体', serif;
-            --radius: 10px;
+        /* ===== 古风全局 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-body);
+            font-family: 'Noto Serif SC', 'Ma Shan Zheng', serif;
+            background: #2b1e0e;
+            /* 仿古宣纸底纹 */
+            background-image: radial-gradient(ellipse at 20% 50%, #3d2b17 0%, #1f1409 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at 20% 30%, rgba(200,180,150,0.25) 0%, transparent 30%),
-                              radial-gradient(circle at 80% 70%, rgba(200,180,150,0.35) 0%, transparent 40%);
-        }
-        #particles-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 0;
-        }
-        #app {
-            width: 95%; max-width: 1200px;
-            background: rgba(253, 250, 243, 0.95);
-            margin: 20px auto;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15), 0 3px 10px rgba(176,58,46,0.1);
+            color: #f0e6d3;
             padding: 20px;
-            position: relative; z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        /* 主卷轴容器 */
+        .scroll-container {
+            max-width: 1260px;
+            width: 100%;
+            background: linear-gradient(180deg, #2f1f0e 0%, #1f1308 100%);
+            border: 6px double #b8945a;
+            border-radius: 32px 32px 24px 24px;
+            padding: 30px 28px 28px 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 0 80px rgba(180, 140, 80, 0.08);
+            position: relative;
+            transition: all 0.2s;
+        }
+        .scroll-container::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 20%;
+            right: 20%;
+            height: 8px;
+            background: linear-gradient(90deg, transparent, #b8945a, #dbb87a, #b8945a, transparent);
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+        /* 标题装饰 */
+        .main-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.8rem;
+            text-align: center;
+            color: #eace9f;
+            text-shadow: 0 0 20px rgba(200, 160, 80, 0.3), 0 4px 8px rgba(0, 0, 0, 0.6);
+            letter-spacing: 12px;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #6a4f2e;
+            position: relative;
+        }
+        .main-title small {
+            font-size: 1rem;
+            letter-spacing: 4px;
+            color: #a6885a;
+            display: block;
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 400;
+            margin-top: 4px;
+        }
+        .sub-charm {
+            text-align: center;
+            color: #b8945a;
+            font-size: 0.9rem;
+            letter-spacing: 8px;
+            margin-top: -4px;
+            margin-bottom: 18px;
+            opacity: 0.6;
+        }
+        /* 导航/菜单 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin: 18px 0 22px 0;
+        }
+        .menu-btn {
+            background: linear-gradient(145deg, #3d2b18, #25190d);
+            border: 1px solid #6a4f2e;
+            border-radius: 12px;
+            color: #eace9f;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            padding: 14px 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            letter-spacing: 2px;
+            text-align: center;
+            position: relative;
             overflow: hidden;
-            backdrop-filter: blur(10px);
         }
-        #app::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
-            background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent), var(--gold), var(--accent));
-            z-index: 2;
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            background: linear-gradient(145deg, #5a3d22, #3d2b18);
+            border-color: #b8945a;
+            box-shadow: 0 8px 24px rgba(180, 140, 80, 0.25);
+            color: #f5e6c8;
         }
-        #app::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-            pointer-events: none; z-index: 1; border-radius: 16px;
+        .menu-btn:active {
+            transform: translateY(0px);
         }
-        .header {
-            text-align: center; padding: 20px 10px 30px;
-            border-bottom: 2px solid var(--gold); margin-bottom: 20px;
-            position: relative; z-index: 2;
+        .menu-btn .icon {
+            display: block;
+            font-size: 1.4rem;
+            margin-bottom: 2px;
         }
-        .header h1 {
-            font-family: var(--font-title); font-size: 2.8rem; color: var(--accent);
-            letter-spacing: 8px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 5px; animation: titleFloat 3s ease-in-out infinite;
+        /* 内容面板 */
+        .panel {
+            background: rgba(30, 20, 10, 0.7);
+            border: 1px solid #4d3820;
+            border-radius: 20px;
+            padding: 24px 22px;
+            margin-top: 16px;
+            backdrop-filter: blur(2px);
+            box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.3);
+            min-height: 320px;
+            transition: all 0.3s;
         }
-        @keyframes titleFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-        .header p { font-size: 1rem; color: var(--accent2); font-style: italic; }
-        .nav {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
-            margin-bottom: 25px; position: relative; z-index: 2;
+        .panel-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.8rem;
+            color: #eace9f;
+            border-bottom: 1px solid #5a3f22;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
-        .nav button {
-            padding: 10px 18px; font-family: var(--font-title); font-size: 1rem;
-            background: #fff; border: 1px solid var(--border); border-radius: 25px;
-            cursor: pointer; transition: all 0.3s; color: var(--text);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); min-width: 90px;
-            position: relative; overflow: hidden;
+        .panel-title .sub {
+            font-size: 1rem;
+            color: #a6885a;
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 400;
+            margin-left: auto;
         }
-        .nav button::after {
-            content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0;
-            background: rgba(176, 58, 46, 0.2); border-radius: 50%;
-            transform: translate(-50%, -50%); transition: width 0.5s, height 0.5s;
+        /* 输入区 */
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 16px;
+            align-items: center;
+            margin-bottom: 14px;
         }
-        .nav button:hover::after { width: 180px; height: 180px; }
-        .nav button:hover {
-            background: var(--accent); color: #fff; border-color: var(--accent);
-            transform: translateY(-3px); box-shadow: 0 8px 20px rgba(176, 58, 46, 0.4);
+        .input-row label {
+            color: #d4c09a;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
-        .nav button.active {
-            background: var(--accent); color: #fff; border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(176, 58, 46, 0.6);
+        .input-row input,
+        .input-row select {
+            background: #1f140a;
+            border: 1px solid #5a3f22;
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: #f0e6d3;
+            font-size: 1rem;
+            font-family: 'Noto Serif SC', serif;
+            outline: none;
+            transition: border 0.3s;
+            min-width: 140px;
+            flex: 1;
         }
-        .content {
-            background: rgba(255,255,255,0.75); border-radius: var(--radius);
-            padding: 20px; min-height: 400px; border: 1px solid var(--border);
-            position: relative; z-index: 2; animation: fadeSlideUp 0.5s ease-out;
-            box-shadow: inset 0 0 20px rgba(255,255,255,0.5);
+        .input-row input:focus,
+        .input-row select:focus {
+            border-color: #b8945a;
+            box-shadow: 0 0 16px rgba(180, 140, 80, 0.15);
         }
-        @keyframes fadeSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        .back-btn {
-            background: var(--accent2); color: #fff; border: none; padding: 8px 20px;
-            border-radius: 20px; cursor: pointer; font-family: var(--font-title);
-            font-size: 1rem; margin-bottom: 15px; transition: all 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        .input-row input::placeholder {
+            color: #6a5a3e;
         }
-        .back-btn:hover { background: #5b1a14; transform: translateX(-3px); }
         .btn {
-            padding: 8px 16px; border: 1px solid var(--border); background: #fff;
-            border-radius: 4px; cursor: pointer; font-family: var(--font-body);
-            transition: all 0.2s; margin: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background: linear-gradient(145deg, #4d3820, #2f1f0e);
+            border: 1px solid #6a4f2e;
+            border-radius: 10px;
+            padding: 10px 24px;
+            color: #eace9f;
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .btn:hover {
-            background: var(--gold); color: #fff; border-color: var(--gold);
-            transform: translateY(-2px); box-shadow: 0 4px 10px rgba(201, 168, 76, 0.4);
+            background: linear-gradient(145deg, #6a4f2e, #4d3820);
+            border-color: #b8945a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(180, 140, 80, 0.2);
         }
-        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-primary:hover { background: var(--accent2); box-shadow: 0 4px 15px rgba(176, 58, 46, 0.5); }
-        input, select, textarea {
-            font-family: var(--font-body); padding: 8px; border: 1px solid var(--border);
-            border-radius: 4px; background: #fff; font-size: 0.95rem; margin: 2px;
-            transition: all 0.3s;
+        .btn-primary {
+            background: linear-gradient(145deg, #7a5a32, #4d3820);
+            border-color: #b8945a;
         }
-        input:focus, select:focus, textarea:focus {
-            outline: none; border-color: var(--gold); box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
+        .btn-primary:hover {
+            background: linear-gradient(145deg, #9a7a4a, #6a4f2e);
         }
-        .card {
-            background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
-            padding: 15px; margin: 10px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: all 0.3s;
+        .btn-danger {
+            background: linear-gradient(145deg, #6a2a1a, #3d1a10);
+            border-color: #8a3a2a;
         }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th, td { border: 1px solid var(--border); padding: 6px 10px; text-align: center; }
-        th { background: #f0e6d2; font-weight: bold; }
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center;
-            align-items: center; backdrop-filter: blur(3px);
+        .btn-danger:hover {
+            background: linear-gradient(145deg, #8a3a2a, #5a2a1a);
         }
-        .modal-content {
-            background: var(--panel); border-radius: var(--radius); padding: 25px;
-            max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
-            border: 2px solid var(--gold); position: relative; animation: modalIn 0.3s ease;
+        .btn-success {
+            background: linear-gradient(145deg, #2a5a2a, #1a3d1a);
+            border-color: #4a8a4a;
         }
-        @keyframes modalIn { from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)} }
-        .close-modal {
-            position: absolute; top: 10px; right: 15px; font-size: 1.5rem;
-            cursor: pointer; color: var(--accent); transition: transform 0.3s;
+        .btn-success:hover {
+            background: linear-gradient(145deg, #3a7a3a, #2a5a2a);
         }
-        .close-modal:hover { transform: rotate(90deg); }
-        .periodic-grid { display: grid; grid-template-columns: repeat(18, 1fr); gap: 3px; margin: 10px 0; }
-        .elem-cell {
-            aspect-ratio: 1; display: flex; flex-direction: column; align-items: center;
-            justify-content: center; background: #e0d5c0; border-radius: 4px;
-            cursor: pointer; font-size: 0.7rem; padding: 2px; transition: all 0.2s;
-            border: 1px solid #c0b090; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .btn-gold {
+            background: linear-gradient(145deg, #8a7a3a, #5a4a1a);
+            border-color: #b8945a;
         }
-        .elem-cell:hover { transform: scale(1.15); z-index: 10; box-shadow: 0 0 15px rgba(0,0,0,0.4); background: #fff2cc; }
-        .elem-symbol { font-weight: bold; font-size: 1rem; }
-        .elem-number { font-size: 0.6rem; }
-        .highlight { background: #ff4d4d !important; color: white; }
-        .footer {
-            text-align: center; padding: 10px; color: #888; font-size: 0.8rem;
-            margin-top: 20px; border-top: 1px solid var(--border);
+        .btn-gold:hover {
+            background: linear-gradient(145deg, #aa9a4a, #7a6a2a);
         }
-        .error { color: red; font-weight: bold; }
-        .success { color: green; font-weight: bold; }
-        .search-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 10px; }
-        .result-box {
-            background: #faf6ee; border: 1px solid var(--border); border-radius: 4px;
-            padding: 10px; max-height: 400px; overflow-y: auto; white-space: pre-wrap;
-            font-family: 'Courier New', monospace; font-size: 0.9rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.85rem;
         }
-        .hidden { display: none !important; }
+        /* 输出区 */
+        .output-box {
+            background: #1a1008;
+            border-radius: 14px;
+            padding: 16px 20px;
+            border: 1px solid #3d2b18;
+            min-height: 120px;
+            max-height: 480px;
+            overflow-y: auto;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.98rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #e8ddcc;
+            margin-top: 10px;
+        }
+        .output-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .output-box::-webkit-scrollbar-track {
+            background: #1f140a;
+        }
+        .output-box::-webkit-scrollbar-thumb {
+            background: #6a4f2e;
+            border-radius: 10px;
+        }
+        .output-box .ok {
+            color: #7ac77a;
+        }
+        .output-box .err {
+            color: #d97a5a;
+        }
+        .output-box .warn {
+            color: #eace6a;
+        }
+        .output-box .highlight {
+            color: #f5d98a;
+        }
+        /* 周期表网格 */
+        .ptable {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(48px, 1fr));
+            gap: 4px;
+            margin: 12px 0;
+        }
+        .ptable .el {
+            background: #2f1f0e;
+            border: 1px solid #4d3820;
+            border-radius: 6px;
+            padding: 4px 2px;
+            text-align: center;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #d4c09a;
+            min-height: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.2;
+        }
+        .ptable .el:hover {
+            transform: scale(1.05);
+            border-color: #b8945a;
+            box-shadow: 0 0 20px rgba(180, 140, 80, 0.2);
+            z-index: 2;
+        }
+        .ptable .el .sym {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .ptable .el .num {
+            font-size: 0.55rem;
+            opacity: 0.6;
+        }
+        .ptable .empty {
+            background: transparent;
+            border: none;
+            cursor: default;
+        }
+        .ptable .empty:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            background: #2f1f0e;
+            border: 1px solid #5a3f22;
+            border-radius: 6px;
+            padding: 2px 12px;
+            font-size: 0.8rem;
+            color: #d4c09a;
+            margin: 2px 4px 2px 0;
+        }
+        .tag-gold {
+            border-color: #b8945a;
+            color: #eace9f;
+        }
+        /* 弹窗 (modal) */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: #2b1e0e;
+            border: 2px solid #b8945a;
+            border-radius: 28px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 28px 32px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+        .modal-box::-webkit-scrollbar {
+            width: 5px;
+        }
+        .modal-box::-webkit-scrollbar-thumb {
+            background: #6a4f2e;
+            border-radius: 10px;
+        }
+        .modal-box .close-btn {
+            position: absolute;
+            top: 14px;
+            right: 20px;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #a6885a;
+            transition: color 0.3s;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        .modal-box .close-btn:hover {
+            color: #d97a5a;
+        }
+        /* 练一练选项 */
+        .opt-item {
+            display: block;
+            background: #1f140a;
+            border: 1px solid #3d2b18;
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin: 6px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #e8ddcc;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1rem;
+            text-align: left;
+            width: 100%;
+        }
+        .opt-item:hover {
+            background: #3d2b18;
+            border-color: #6a4f2e;
+        }
+        .opt-item.selected {
+            border-color: #b8945a;
+            background: #4d3820;
+        }
+        .opt-item.correct {
+            border-color: #4a8a4a;
+            background: #1a3d1a;
+        }
+        .opt-item.wrong {
+            border-color: #8a3a2a;
+            background: #3d1a10;
+        }
+        .opt-item.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+        /* 响应式 */
         @media (max-width: 768px) {
-            .periodic-grid { grid-template-columns: repeat(9, 1fr); }
-            .header h1 { font-size: 2rem; }
+            .scroll-container {
+                padding: 16px 12px;
+            }
+            .main-title {
+                font-size: 2rem;
+                letter-spacing: 6px;
+            }
+            .menu-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .menu-btn {
+                font-size: 0.85rem;
+                padding: 10px 4px;
+            }
+            .ptable {
+                grid-template-columns: repeat(18, minmax(28px, 1fr));
+                gap: 2px;
+            }
+            .ptable .el {
+                font-size: 0.5rem;
+                min-height: 32px;
+                padding: 2px 1px;
+            }
+            .ptable .el .sym {
+                font-size: 0.6rem;
+            }
+            .panel {
+                padding: 16px 14px;
+            }
+            .input-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .input-row input,
+            .input-row select {
+                min-width: 0;
+            }
+            .btn {
+                justify-content: center;
+            }
+        }
+        @media (max-width: 480px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .main-title {
+                font-size: 1.6rem;
+                letter-spacing: 4px;
+            }
+            .panel-title {
+                font-size: 1.3rem;
+            }
+        }
+        /* 滚动条整体 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f140a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5a3f22;
+            border-radius: 10px;
+        }
+        /* 辅助 */
+        .flex-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            align-items: center;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: #8a7a5a;
+        }
+        .w-full {
+            width: 100%;
+        }
+        /* 古风装饰 */
+        .ornament {
+            text-align: center;
+            color: #6a4f2e;
+            font-size: 1.2rem;
+            letter-spacing: 12px;
+            opacity: 0.4;
+            margin: 4px 0 12px 0;
+            user-select: none;
+        }
+        /* 加载动画（极简） */
+        .loading-dots::after {
+            content: '...';
+            animation: dots 1.2s steps(3, end) infinite;
+        }
+        @keyframes dots {
+            0% {
+                content: '.';
+            }
+            33% {
+                content: '..';
+            }
+            66% {
+                content: '...';
+            }
         }
     </style>
 </head>
 <body>
-<canvas id="particles-canvas"></canvas>
 
-<div id="app">
-    <div class="header">
-        <h1>⚗️ 化学世界</h1>
-        <p>—— 古风雅集 · 格物致知 ——</p>
-    </div>
-    <div class="nav" id="mainNav">
-        <button data-page="home" class="active">🏠 首页</button>
-        <button data-page="periodic">📜 元素周期表</button>
-        <button data-page="equations">📖 方程式</button>
-        <button data-page="molecules">🧪 分子查询</button>
-        <button data-page="radicals">⚛️ 原子团</button>
-        <button data-page="calculator">⚖️ 质量计算</button>
-        <button data-page="balance">🔧 化学式配平</button>
-        <button data-page="practice">✍️ 练一练</button>
-        <button data-page="changelog">📋 更新日志</button>
-    </div>
-    <div class="content" id="contentArea"></div>
-    <div class="footer">版本 2.6 · 古风网页版 · 数据文件请置于同目录</div>
-</div>
+    <div class="scroll-container" id="app">
+        <!-- 标题 -->
+        <div class="main-title">
+            化学世界
+            <small>· 古 风 卷 轴 ·</small>
+        </div>
+        <div class="sub-charm">—— 格物致知 · 化育万物 ——</div>
+        <div class="ornament">◆ ◇ ◆ ◇ ◆</div>
 
-<div class="modal" id="modal">
-    <div class="modal-content" id="modalContent">
-        <span class="close-modal" id="closeModal">&times;</span>
-        <div id="modalBody"></div>
-    </div>
-</div>
+        <!-- 主菜单 -->
+        <div class="menu-grid" id="mainMenu">
+            <button class="menu-btn" data-page="periodic"><span class="icon">⚗</span>周期表</button>
+            <button class="menu-btn" data-page="equations"><span class="icon">📜</span>方程式</button>
+            <button class="menu-btn" data-page="molecules"><span class="icon">🧪</span>分子查询</button>
+            <button class="menu-btn" data-page="weight"><span class="icon">⚖</span>分子量计算</button>
+            <button class="menu-btn" data-page="balance"><span class="icon">⚡</span>化学式配平</button>
+            <button class="menu-btn" data-page="radicals"><span class="icon">🔮</span>原子团</button>
+            <button class="menu-btn" data-page="practice"><span class="icon">📝</span>练一练</button>
+            <button class="menu-btn" data-page="about"><span class="icon">📖</span>关于</button>
+        </div>
 
-<script>
-// ==================== 粒子背景 ====================
-(function() {
-    const canvas = document.getElementById('particles-canvas');
-    const ctx = canvas.getContext('2d');
-    let width, height;
-    const particles = [];
-    const PARTICLE_COUNT = 60;
-    function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
-    class Particle {
-        constructor() { this.reset(); }
-        reset() {
-            this.x = Math.random() * width; this.y = Math.random() * height;
-            this.size = Math.random() * 3 + 1; this.speedX = (Math.random() - 0.5) * 0.5;
-            this.speedY = (Math.random() - 0.5) * 0.5; this.opacity = Math.random() * 0.5 + 0.2;
-            this.color = `rgba(185, 140, 70, ${this.opacity})`;
-        }
-        update() {
-            this.x += this.speedX; this.y += this.speedY;
-            if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) this.reset();
-        }
-        draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); }
-    }
-    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
-    function animate() { ctx.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-    animate();
-})();
-
-// ==================== 数据加载与解析 ====================
-let dataCache = { elements: [], equations: [], questions: [], molecules: [], radicals: [], changelog: "" };
-let atomicWeights = { exact: {}, approx: {} };
-let dataLoaded = false;
-
-async function loadDataFile(filename) {
-    try {
-        const res = await fetch(filename);
-        if (!res.ok) throw new Error('File not found');
-        return await res.text();
-    } catch (e) {
-        try {
-            const res = await fetch('data/' + filename);
-            if (!res.ok) throw new Error('File not found in data/');
-            return await res.text();
-        } catch (e2) {
-            console.warn(`无法加载 ${filename}: ${e2.message}`);
-            return null;
-        }
-    }
-}
-
-function parseElementsCSV(text) {
-    const lines = text.split('\n').filter(l => l.trim() && !l.startsWith('#'));
-    const elements = [];
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-        const parts = [];
-        let current = '', inQuotes = false;
-        for (let ch of line) {
-            if (ch === '"') inQuotes = !inQuotes;
-            else if (ch === ',' && !inQuotes) { parts.push(current.trim()); current = ''; }
-            else current += ch;
-        }
-        if (current) parts.push(current.trim());
-        parts.forEach((p, idx) => parts[idx] = p.replace(/^"|"$/g, ''));
-        if (parts.length < 6) continue;
-        const symbol = parts[0].trim();
-        const name = parts[1].split('(')[0].trim();
-        const num = parts[2].replace(/\D/g, '');
-        if (!symbol || !num) continue;
-        elements.push({ symbol, name, num, mass: parts[3] || '', valence: parts[4] || '', type: parts[5] || '', group: parts[6] || '', period: parts[7] || '', electronConfig: parts[8] || '', year: parts[9] || '', discoverer: parts[10] || '', properties: parts[11] || '' });
-    }
-    elements.sort((a, b) => parseInt(a.num) - parseInt(b.num));
-    return elements;
-}
-
-function parseSimpleCSV(text, minFields = 3) {
-    const lines = text.split('\n').filter(l => l.trim() && !l.startsWith('#'));
-    const result = [];
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-        const parts = line.split(',').map(p => p.trim());
-        if (parts.length >= minFields) result.push(parts);
-    }
-    return result;
-}
-
-async function initData() {
-    try {
-        const [elemText, eqText, qText, molText, radText, logText] = await Promise.all([
-            loadDataFile('原子.txt'), loadDataFile('方程式.txt'), loadDataFile('问题.txt'),
-            loadDataFile('分子.txt'), loadDataFile('原子团.txt'), loadDataFile('更新日志.txt')
-        ]);
-        if (elemText) dataCache.elements = parseElementsCSV(elemText);
-        if (eqText) dataCache.equations = parseSimpleCSV(eqText, 3).map(p => ({ type: p[0], equation: p[1], desc: p[2] || '' }));
-        if (qText) dataCache.questions = parseSimpleCSV(qText, 8).map(p => ({ type: p[0], question: p[1], A: p[2], B: p[3], C: p[4], D: p[5], answer: p[6], explain: p[7] || '' }));
-        if (molText) dataCache.molecules = parseSimpleCSV(molText, 5).map(p => ({ name: p[0], formula: p[1], weight: p[2], type: p[3], desc: p[4] || '' }));
-        if (radText) dataCache.radicals = parseSimpleCSV(radText, 4).map(p => ({ name: p[0], formula: p[1], charge: p[2], desc: p[3] || '' }));
-        if (logText) dataCache.changelog = logText;
-        atomicWeights = { exact: {}, approx: {} };
-        dataCache.elements.forEach(e => {
-            const match = e.mass.match(/[\d.]+/);
-            if (match) { const val = parseFloat(match[0]); atomicWeights.exact[e.symbol] = val; atomicWeights.approx[e.symbol] = Math.round(val); }
-        });
-        dataLoaded = true;
-    } catch (err) { console.error('数据加载出错:', err); alert('数据加载失败，请确认txt文件与HTML同目录。'); }
-}
-
-// ==================== 化学解析核心（完美修复版） ====================
-function parseCharge(token) {
-    token = token.trim();
-    if (!token) return 0;
-    let sign = 1, numStr = '';
-    if (token.includes('+')) { sign = 1; numStr = token.replace('+', ''); }
-    else if (token.includes('-')) { sign = -1; numStr = token.replace('-', ''); }
-    const num = numStr ? parseInt(numStr) : 1;
-    return sign * num;
-}
-
-function parseCompound(compound) {
-    let s = compound.trim();
-    let charge = 0;
-
-    // 1. 处理 ^ 电荷，如 SO4^2-、Fe^3+
-    let m = s.match(/\^(\d*[+-])$/);
-    if (m) {
-        charge = parseCharge(m[1]);
-        s = s.substring(0, m.index);
-    } else {
-        // 2. 处理括号电荷，如 (SO4)2-、(SO4)-
-        m = s.match(/\((\d*[+-])\)$/);
-        if (m) {
-            charge = parseCharge(m[1]);
-            s = s.substring(0, m.index);
-        } else {
-            // 3. 处理末尾数字+符号，如 Fe3+、MnO4-
-            m = s.match(/(\d+)([+-])$/);
-            if (m) {
-                const num = m[1], sign = m[2];
-                const prefix = s.substring(0, m.index);
-                if (/^[A-Z][a-z]?$/.test(prefix)) {
-                    charge = parseCharge(num + sign);
-                    s = prefix;
-                } else {
-                    charge = parseCharge(sign);
-                }
-            } else {
-                // 4. 处理末尾单个符号，如 H+、MnO4-
-                m = s.match(/([+-])$/);
-                if (m) {
-                    charge = parseCharge(m[1]);
-                    s = s.substring(0, m.index);
-                }
-            }
-        }
-    }
-
-    s = s.replace(/\[/g, '(').replace(/\]/g, ')');
-    s = s.replace(/_/g, '');
-
-    const elemRegex = /[A-Z][a-z]?/g;
-    const stack = [{}];
-    let i = 0, n = s.length;
-    function getNumber(pos) {
-        let j = pos;
-        while (j < n && /\d/.test(s[j])) j++;
-        if (j === pos) return { count: 1, next: pos };
-        return { count: parseInt(s.substring(pos, j)), next: j };
-    }
-    while (i < n) {
-        const ch = s[i];
-        if (ch === '(') {
-            stack.push({});
-            i++;
-        } else if (ch === ')') {
-            i++;
-            const numRes = getNumber(i);
-            const mult = numRes.count;
-            i = numRes.next;
-            const inner = stack.pop();
-            for (let elem in inner) {
-                stack[stack.length-1][elem] = (stack[stack.length-1][elem] || 0) + inner[elem] * mult;
-            }
-        } else if (/[A-Z]/.test(ch)) {
-            elemRegex.lastIndex = i;
-            const m = elemRegex.exec(s);
-            if (!m || m.index !== i) throw new Error('无效元素符号');
-            const elem = m[0];
-            i = m.index + elem.length;
-            const numRes = getNumber(i);
-            const cnt = numRes.count;
-            i = numRes.next;
-            stack[stack.length-1][elem] = (stack[stack.length-1][elem] || 0) + cnt;
-        } else if (/\s/.test(ch)) {
-            i++;
-        } else {
-            throw new Error('非法字符: ' + ch);
-        }
-    }
-    if (stack.length !== 1) throw new Error('括号不匹配');
-    return { counts: stack[0], charge };
-}
-
-// 智能分割方程式：保护电荷符号，避免被 + 误分割
-function normalizeEquation(eqStr) {
-    // 先替换箭头符号
-    let s = eqStr.replace(/=/g, '->');
-    // 保护所有不应被 + 分割的片段：^电荷、数字电荷、括号电荷等
-    const protectedTokens = [];
-    // 匹配 ^ 加 数字 加 符号、_ 加 数字、数字 加 符号、单独的符号前有字母或括号
-    const regex = /(\^\s*\d*[+\-]|_\s*\d+|\d+[+\-]|[A-Za-z\)\]]\s*[+\-]|\([^)]*\)\s*[+\-]?)/g;
-    s = s.replace(regex, (match) => {
-        protectedTokens.push(match);
-        return `<<<${protectedTokens.length-1}>>>`;
-    });
-
-    // 现在 + 只作为分隔符
-    const parts = s.split('->');
-    if (parts.length !== 2) return null;
-    const leftRaw = parts[0].trim();
-    const rightRaw = parts[1].trim();
-
-    const leftTokens = leftRaw.split('+').map(t => t.trim()).filter(t => t);
-    const rightTokens = rightRaw.split('+').map(t => t.trim()).filter(t => t);
-
-    // 还原占位符
-    const restore = str => str.replace(/<<<(\d+)>>>/g, (m, idx) => protectedTokens[parseInt(idx)]);
-    const reactants = leftTokens.map(restore).map(s => s.replace(/^\d+/, '').trim()).filter(s => s);
-    const products = rightTokens.map(restore).map(s => s.replace(/^\d+/, '').trim()).filter(s => s);
-
-    const normEq = reactants.join(' + ') + ' -> ' + products.join(' + ');
-    return { normEq, reactants, products };
-}
-
-// 用于质量计算等需要展示的格式化
-function autoFormatEquation(raw) {
-    let s = raw.replace(/=/g, '->');
-    const protectedTokens = [];
-    const regex = /(\^\s*\d*[+\-]|_\s*\d+|\d+[+\-]|[+\-]\d*|\([^)]*\)[+\-]?)/g;
-    s = s.replace(regex, match => {
-        protectedTokens.push(match);
-        return `<<<${protectedTokens.length-1}>>>`;
-    });
-    s = s.replace(/\+/g, ' + ').replace(/->/g, ' -> ');
-    protectedTokens.forEach((token, idx) => { s = s.replace(`<<<${idx}>>>`, token); });
-    return s.replace(/\s+/g, ' ').trim();
-}
-
-// BigInt 分数
-class Fraction {
-    constructor(num, den = 1n) {
-        if (typeof num === 'number') num = BigInt(num);
-        if (typeof den === 'number') den = BigInt(den);
-        if (den < 0n) { num = -num; den = -den; }
-        const g = gcdBigInt(num, den);
-        this.num = num / g; this.den = den / g;
-    }
-    add(o) { return new Fraction(this.num * o.den + o.num * this.den, this.den * o.den); }
-    sub(o) { return new Fraction(this.num * o.den - o.num * this.den, this.den * o.den); }
-    mul(o) { return new Fraction(this.num * o.num, this.den * o.den); }
-    div(o) { return new Fraction(this.num * o.den, this.den * o.num); }
-    isZero() { return this.num === 0n; }
-    isNegative() { return this.num < 0n; }
-    isPositive() { return this.num > 0n; }
-}
-function gcdBigInt(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { [a, b] = [b, a % b]; } return a; }
-
-function fractionArrayToInt(arr) {
-    const dens = arr.map(f => f.den);
-    let lcm = 1n;
-    dens.forEach(d => lcm = lcm * d / gcdBigInt(lcm, d));
-    const ints = arr.map(f => f.num * (lcm / f.den));
-    let g = ints[0];
-    for (let i = 1; i < ints.length; i++) g = gcdBigInt(g, ints[i]);
-    return ints.map(x => Number(x / g));
-}
-
-function balanceNullspace(reactants, products) {
-    const rCounts = reactants.map(r => parseCompound(r).counts);
-    const pCounts = products.map(p => parseCompound(p).counts);
-    const rCharges = reactants.map(r => parseCompound(r).charge);
-    const pCharges = products.map(p => parseCompound(p).charge);
-    const allElements = new Set();
-    rCounts.forEach(d => Object.keys(d).forEach(e => allElements.add(e)));
-    pCounts.forEach(d => Object.keys(d).forEach(e => allElements.add(e)));
-    const elements = Array.from(allElements).sort();
-    const includeCharge = rCharges.some(c => c !== 0) || pCharges.some(c => c !== 0);
-    const nR = reactants.length, nP = products.length;
-    const nVars = nR + nP;
-    const A = [];
-    elements.forEach(e => {
-        const row = [];
-        for (let i = 0; i < nR; i++) row.push(new Fraction(rCounts[i][e] || 0));
-        for (let j = 0; j < nP; j++) row.push(new Fraction(-(pCounts[j][e] || 0)));
-        A.push(row);
-    });
-    if (includeCharge) {
-        const row = [];
-        for (let i = 0; i < nR; i++) row.push(new Fraction(rCharges[i]));
-        for (let j = 0; j < nP; j++) row.push(new Fraction(-pCharges[j]));
-        A.push(row);
-    }
-    if (A.length === 0) throw new Error('无元素或电荷信息');
-    const rows = A.length, cols = nVars;
-    let M = A.map(row => row.slice());
-    let pivotRow = 0, pivotCol = 0;
-    while (pivotRow < rows && pivotCol < cols) {
-        let found = -1;
-        for (let r = pivotRow; r < rows; r++) if (!M[r][pivotCol].isZero()) { found = r; break; }
-        if (found === -1) { pivotCol++; continue; }
-        [M[pivotRow], M[found]] = [M[found], M[pivotRow]];
-        const pivot = M[pivotRow][pivotCol];
-        for (let c = pivotCol; c < cols; c++) M[pivotRow][c] = M[pivotRow][c].div(pivot);
-        for (let r = 0; r < rows; r++) {
-            if (r !== pivotRow && !M[r][pivotCol].isZero()) {
-                const factor = M[r][pivotCol];
-                for (let c = pivotCol; c < cols; c++) M[r][c] = M[r][c].sub(factor.mul(M[pivotRow][c]));
-            }
-        }
-        pivotRow++; pivotCol++;
-    }
-    const pivotCols = [];
-    let r = 0;
-    for (let c = 0; c < cols; c++) if (r < rows && !M[r][c].isZero()) { pivotCols.push(c); r++; }
-    const freeVars = [];
-    for (let c = 0; c < cols; c++) if (!pivotCols.includes(c)) freeVars.push(c);
-    if (freeVars.length === 0) throw new Error('无自由变量，无法配平');
-    for (let base of freeVars) {
-        const x = Array(cols).fill().map(() => new Fraction(0));
-        x[base] = new Fraction(1);
-        for (let i = pivotCols.length - 1; i >= 0; i--) {
-            const pc = pivotCols[i];
-            let total = new Fraction(0);
-            for (let c = pc + 1; c < cols; c++) total = total.add(M[i][c].mul(x[c]));
-            x[pc] = total.mul(new Fraction(-1));
-        }
-        let allPositive = true;
-        for (let v of x) if (!v.isPositive()) { allPositive = false; break; }
-        if (allPositive) {
-            const ints = fractionArrayToInt(x);
-            return { rCoeffs: ints.slice(0, nR), pCoeffs: ints.slice(nR) };
-        }
-        let allNegative = true;
-        for (let v of x) if (!v.isNegative() && !v.isZero()) { allNegative = false; break; }
-        if (allNegative) {
-            const negX = x.map(v => v.mul(new Fraction(-1)));
-            const ints = fractionArrayToInt(negX);
-            return { rCoeffs: ints.slice(0, nR), pCoeffs: ints.slice(nR) };
-        }
-    }
-    throw new Error('无全正系数解');
-}
-
-function verifyBalance(reactants, products, rCoeffs, pCoeffs) {
-    const rCounts = reactants.map(r => parseCompound(r).counts);
-    const pCounts = products.map(p => parseCompound(p).counts);
-    const rCharges = reactants.map(r => parseCompound(r).charge);
-    const pCharges = products.map(p => parseCompound(p).charge);
-    const allElements = new Set();
-    rCounts.forEach(d => Object.keys(d).forEach(e => allElements.add(e)));
-    pCounts.forEach(d => Object.keys(d).forEach(e => allElements.add(e)));
-    let balanced = true;
-    let details = [];
-    for (let e of allElements) {
-        let left = 0, right = 0;
-        for (let i = 0; i < reactants.length; i++) left += rCoeffs[i] * (rCounts[i][e] || 0);
-        for (let j = 0; j < products.length; j++) right += pCoeffs[j] * (pCounts[j][e] || 0);
-        if (left !== right) { balanced = false; details.push(`❌ ${e}: ${left} ≠ ${right}`); }
-        else details.push(`✅ ${e}: ${left} = ${right}`);
-    }
-    let leftCharge = 0, rightCharge = 0;
-    for (let i = 0; i < reactants.length; i++) leftCharge += rCoeffs[i] * rCharges[i];
-    for (let j = 0; j < products.length; j++) rightCharge += pCoeffs[j] * pCharges[j];
-    if (leftCharge !== rightCharge) { balanced = false; details.push(`❌ 电荷: ${leftCharge} ≠ ${rightCharge}`); }
-    else details.push(`✅ 电荷: ${leftCharge} = ${rightCharge}`);
-    return { balanced, details: details.join('\n') };
-}
-
-function calculateMolecularWeight(formula, aw) {
-    const { counts } = parseCompound(formula);
-    let mass = 0;
-    let unknown = [];
-    for (let elem in counts) {
-        if (aw[elem]) mass += aw[elem] * counts[elem];
-        else unknown.push(elem);
-    }
-    if (unknown.length) throw new Error('未知元素: ' + unknown.join(', '));
-    return { mass, counts };
-}
-
-// ==================== 页面切换 ====================
-function showPage(pageName) {
-    const navButtons = document.querySelectorAll('.nav button');
-    navButtons.forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.nav button[data-page="${pageName}"]`)?.classList.add('active');
-    const content = document.getElementById('contentArea');
-    content.innerHTML = '';
-    switch (pageName) {
-        case 'home': renderHome(content); break;
-        case 'periodic': renderPeriodic(content); break;
-        case 'equations': renderEquations(content); break;
-        case 'molecules': renderMolecules(content); break;
-        case 'radicals': renderRadicals(content); break;
-        case 'calculator': renderCalculator(content); break;
-        case 'balance': renderBalance(content); break;
-        case 'practice': renderPractice(content); break;
-        case 'changelog': renderChangelog(content); break;
-    }
-}
-
-function addBackButton(parent, target = 'home') {
-    const btn = document.createElement('button');
-    btn.className = 'back-btn';
-    btn.textContent = '← 返回';
-    btn.onclick = () => showPage(target);
-    parent.appendChild(btn);
-}
-
-// ==================== 各功能渲染函数 ====================
-function renderHome(container) {
-    container.innerHTML = `
-        <div style="text-align:center; padding: 40px 20px;">
-            <h2 style="font-family:var(--font-title); color:var(--accent); font-size:2rem;">欢迎来到化学世界</h2>
-            <p style="margin:20px 0; font-size:1.1rem;">格物致知，探微知著。选择上方功能进入。</p>
-            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px;">
-                <div class="card" style="width:200px;"><h3>📜 元素周期表</h3><p>118种元素尽收眼底</p></div>
-                <div class="card" style="width:200px;"><h3>📖 方程式</h3><p>常见反应查询</p></div>
-                <div class="card" style="width:200px;"><h3>🔧 配平</h3><p>智能化学式配平</p></div>
-                <div class="card" style="width:200px;"><h3>✍️ 练一练</h3><p>自测化学知识</p></div>
+        <!-- 内容面板 -->
+        <div class="panel" id="contentPanel">
+            <div class="panel-title" id="panelTitle">
+                欢迎
+                <span class="sub">· 化学世界 ·</span>
+            </div>
+            <div id="panelBody">
+                <p style="color:#a6885a; line-height:2; font-size:1.05rem;">
+                    择一雅事，以究化学之妙。<br />
+                    此卷集 <strong style="color:#eace9f;">周期表</strong>、<strong style="color:#eace9f;">方程式</strong>、
+                    <strong style="color:#eace9f;">分子量</strong>、<strong style="color:#eace9f;">配平</strong>、
+                    <strong style="color:#eace9f;">原子团</strong> 与 <strong style="color:#eace9f;">练一练</strong> 于一体。<br />
+                    愿君游弋其中，得化学之趣。
+                </p>
+                <div style="margin-top:18px; color:#6a5a3e; font-size:0.9rem; border-top:1px solid #3d2b18; padding-top:14px;">
+                    <span class="tag tag-gold">版本 2.0 · 古风</span>
+                    <span class="tag">纯前端 · 静态</span>
+                    <span class="tag">数据内置</span>
+                </div>
             </div>
         </div>
-    `;
-}
+    </div>
 
-function renderPeriodic(container) {
-    if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
-    addBackButton(container);
-    const title = document.createElement('h2');
-    title.textContent = '元素周期表';
-    title.style.fontFamily = 'var(--font-title)';
-    title.style.color = 'var(--accent)';
-    container.appendChild(title);
+    <!-- 模态框 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box" id="modalBox">
+            <button class="close-btn" id="modalClose">✕</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
 
-    const searchRow = document.createElement('div');
-    searchRow.className = 'search-row';
-    searchRow.innerHTML = `
-        <label>搜索字段:</label>
-        <select id="periodicField">
-            <option value="all">全部字段</option>
-            <option value="symbol">元素符号</option>
-            <option value="name">中文名</option>
-            <option value="num">原子序数</option>
-            <option value="type">类型</option>
-            <option value="electronConfig">电子排布</option>
-            <option value="properties">特性</option>
-        </select>
-        <label>关键字:</label>
-        <input type="text" id="periodicSearch" placeholder="输入搜索词">
-        <button class="btn btn-primary" id="periodicSearchBtn">搜索</button>
-        <button class="btn" id="periodicClearBtn">清空</button>
-        <span id="periodicResultInfo" style="margin-left:10px;"></span>
-    `;
-    container.appendChild(searchRow);
+    <script>
+        // ============================================================
+        //  1. 数 据 (硬编码，无自动初始化)
+        // ============================================================
 
-    const gridContainer = document.createElement('div');
-    gridContainer.id = 'periodicGridContainer';
-    gridContainer.style.overflowX = 'auto';
-    container.appendChild(gridContainer);
+        // 元素数据 (原代码中存在的)
+        const ELEMENTS_DATA = [
+            { symbol: 'H', name: '氢', num: 1, mass: 1.008, valence: '+1,-1', type: '非金属', group: 'IA', period: 1,
+                electron: '1s1', year: 1766, discoverer: '卡文迪许', props: '最轻的元素' },
+            { symbol: 'He', name: '氦', num: 2, mass: 4.0026, valence: '0', type: '惰性气体', group: '0', period: 1,
+                electron: '1s2', year: 1895, discoverer: '拉姆塞', props: '稀有气体' },
+            { symbol: 'C', name: '碳', num: 6, mass: 12.011, valence: '+2,+4,-4', type: '非金属', group: 'IVA', period: 2,
+                electron: '1s2 2s2 2p2', year: '古代', discoverer: '未知', props: '生命基础' },
+            { symbol: 'O', name: '氧', num: 8, mass: 15.999, valence: '-2', type: '非金属', group: 'VIA', period: 2,
+                electron: '1s2 2s2 2p4', year: 1774, discoverer: '普利斯特里', props: '地壳中含量最多' },
+            { symbol: 'Mn', name: '锰', num: 25, mass: 54.938, valence: '+2,+4,+7', type: '过渡金属', group: 'VIIB', period: 4,
+                electron: '[Ar]3d5 4s2', year: 1774, discoverer: '甘恩', props: '用于钢铁' },
+            { symbol: 'Fe', name: '铁', num: 26, mass: 55.845, valence: '+2,+3', type: '过渡金属', group: 'VIII', period: 4,
+                electron: '[Ar]3d6 4s2', year: '古代', discoverer: '未知', props: '地壳中第二多金属' },
+            { symbol: 'K', name: '钾', num: 19, mass: 39.0983, valence: '+1', type: '碱金属', group: 'IA', period: 4,
+                electron: '[Ar]4s1', year: 1807, discoverer: '戴维', props: '活泼金属' },
+            { symbol: 'S', name: '硫', num: 16, mass: 32.06, valence: '-2,+4,+6', type: '非金属', group: 'VIA', period: 3,
+                electron: '[Ne]3s2 3p4', year: '古代', discoverer: '未知', props: '黄色非金属' },
+            { symbol: 'N', name: '氮', num: 7, mass: 14.007, valence: '-3,+3,+5', type: '非金属', group: 'VA', period: 2,
+                electron: '1s2 2s2 2p3', year: 1772, discoverer: '卢瑟福', props: '空气中含量最多' },
+            { symbol: 'Cl', name: '氯', num: 17, mass: 35.45, valence: '-1,+1,+3,+5,+7', type: '卤素', group: 'VIIA',
+                period: 3, electron: '[Ne]3s2 3p5', year: 1774, discoverer: '舍勒', props: '黄绿色气体' },
+            { symbol: 'Na', name: '钠', num: 11, mass: 22.99, valence: '+1', type: '碱金属', group: 'IA', period: 3,
+                electron: '[Ne]3s1', year: 1807, discoverer: '戴维', props: '银白色金属' },
+            { symbol: 'Mg', name: '镁', num: 12, mass: 24.305, valence: '+2', type: '碱土金属', group: 'IIA', period: 3,
+                electron: '[Ne]3s2', year: 1808, discoverer: '戴维', props: '轻金属' },
+            { symbol: 'Al', name: '铝', num: 13, mass: 26.982, valence: '+3', type: '贫金属', group: 'IIIA', period: 3,
+                electron: '[Ne]3s2 3p1', year: 1825, discoverer: '奥斯特', props: '地壳中含量最多金属' },
+            { symbol: 'Si', name: '硅', num: 14, mass: 28.085, valence: '+4', type: '类金属', group: 'IVA', period: 3,
+                electron: '[Ne]3s2 3p2', year: 1824, discoverer: '贝采利乌斯', props: '半导体材料' },
+            { symbol: 'P', name: '磷', num: 15, mass: 30.974, valence: '-3,+3,+5', type: '非金属', group: 'VA', period: 3,
+                electron: '[Ne]3s2 3p3', year: 1669, discoverer: '布兰德', props: '白磷易燃' },
+            { symbol: 'Ca', name: '钙', num: 20, mass: 40.078, valence: '+2', type: '碱土金属', group: 'IIA', period: 4,
+                electron: '[Ar]4s2', year: 1808, discoverer: '戴维', props: '骨骼主要成分' },
+            { symbol: 'Cu', name: '铜', num: 29, mass: 63.546, valence: '+1,+2', type: '过渡金属', group: 'IB', period: 4,
+                electron: '[Ar]3d10 4s1', year: '古代', discoverer: '未知', props: '紫红色金属' },
+            { symbol: 'Zn', name: '锌', num: 30, mass: 65.38, valence: '+2', type: '过渡金属', group: 'IIB', period: 4,
+                electron: '[Ar]3d10 4s2', year: '古代', discoverer: '未知', props: '镀锌防腐' },
+            { symbol: 'Ag', name: '银', num: 47, mass: 107.868, valence: '+1', type: '过渡金属', group: 'IB', period: 5,
+                electron: '[Kr]4d10 5s1', year: '古代', discoverer: '未知', props: '导电性最好' },
+            { symbol: 'Au', name: '金', num: 79, mass: 196.967, valence: '+1,+3', type: '过渡金属', group: 'IB', period: 6,
+                electron: '[Xe]4f14 5d10 6s1', year: '古代', discoverer: '未知', props: '最贵重的金属' },
+            { symbol: 'Hg', name: '汞', num: 80, mass: 200.59, valence: '+1,+2', type: '过渡金属', group: 'IIB', period: 6,
+                electron: '[Xe]4f14 5d10 6s2', year: '古代', discoverer: '未知', props: '常温液态金属' },
+            { symbol: 'Pb', name: '铅', num: 82, mass: 207.2, valence: '+2,+4', type: '贫金属', group: 'IVA', period: 6,
+                electron: '[Xe]4f14 5d10 6s2 6p2', year: '古代', discoverer: '未知', props: '密度大' },
+        ];
 
-    function renderGrid(filtered, highlightSet = null) {
-        gridContainer.innerHTML = '';
-        const grid = document.createElement('div');
-        grid.className = 'periodic-grid';
-        grid.style.minWidth = '800px';
-        const layout = {};
-        layout['H'] = [1,1]; layout['He'] = [1,18];
-        ['Li','Be','B','C','N','O','F','Ne'].forEach((el,i)=>layout[el]=[2,i<2?i+1:i+11]);
-        ['Na','Mg','Al','Si','P','S','Cl','Ar'].forEach((el,i)=>layout[el]=[3,i<2?i+1:i+11]);
-        ['K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn','Ga','Ge','As','Se','Br','Kr'].forEach((el,i)=>layout[el]=[4,i+1]);
-        ['Rb','Sr','Y','Zr','Nb','Mo','Tc','Ru','Rh','Pd','Ag','Cd','In','Sn','Sb','Te','I','Xe'].forEach((el,i)=>layout[el]=[5,i+1]);
-        ['Cs','Ba','La','Hf','Ta','W','Re','Os','Ir','Pt','Au','Hg','Tl','Pb','Bi','Po','At','Rn'].forEach((el,i)=>layout[el]=[6,i+1]);
-        ['Fr','Ra','Ac','Rf','Db','Sg','Bh','Hs','Mt','Ds','Rg','Cn','Nh','Fl','Mc','Lv','Ts','Og'].forEach((el,i)=>layout[el]=[7,i+1]);
-        ['La','Ce','Pr','Nd','Pm','Sm','Eu','Gd','Tb','Dy','Ho','Er','Tm','Yb','Lu'].forEach((el,i)=>layout[el]=[9,i+4]);
-        ['Ac','Th','Pa','U','Np','Pu','Am','Cm','Bk','Cf','Es','Fm','Md','No','Lr'].forEach((el,i)=>layout[el]=[10,i+4]);
-        const elemMap = {};
-        filtered.forEach(e => elemMap[e.symbol] = e);
-        for (let symbol in layout) {
-            const [row, col] = layout[symbol];
-            const elem = elemMap[symbol];
-            if (!elem) continue;
-            const cell = document.createElement('div');
-            cell.className = 'elem-cell';
-            cell.style.backgroundColor = getTypeColor(elem.type);
-            if (highlightSet && highlightSet.has(symbol)) cell.classList.add('highlight');
-            cell.innerHTML = `<span class="elem-number">${elem.num}</span><span class="elem-symbol">${symbol}</span>`;
-            cell.title = `${elem.name} (${symbol})`;
-            cell.onclick = () => showElementDetail(elem);
-            cell.style.gridRow = row;
-            cell.style.gridColumn = col;
-            grid.appendChild(cell);
+        // 方程式
+        const EQUATIONS_DATA = [
+            { type: '氧化还原', equation: '2KMnO4 + 5H2O2 + 3H2SO4 -> 2MnSO4 + K2SO4 + 5O2 + 8H2O',
+            desc: '高锰酸钾与过氧化氢' },
+            { type: '离子反应', equation: '2MnO4- + 5H2C2O4 + 6H+ -> 2Mn2+ + 10CO2 + 8H2O', desc: '高锰酸钾氧化草酸' },
+            { type: '化合反应', equation: '2H2 + O2 -> 2H2O', desc: '氢气燃烧生成水' },
+            { type: '置换反应', equation: 'Zn + H2SO4 -> ZnSO4 + H2', desc: '锌与稀硫酸' },
+            { type: '复分解反应', equation: 'AgNO3 + NaCl -> AgCl + NaNO3', desc: '硝酸银与氯化钠' },
+            { type: '氧化还原', equation: 'Cu + 4HNO3 -> Cu(NO3)2 + 2NO2 + 2H2O', desc: '铜与浓硝酸' },
+        ];
+
+        // 分子
+        const MOLECULES_DATA = [
+            { name: '水', formula: 'H2O', weight: 18.015, type: '无机化合物', desc: '生命之源' },
+            { name: '二氧化碳', formula: 'CO2', weight: 44.01, type: '无机化合物', desc: '温室气体' },
+            { name: '乙醇', formula: 'C2H5OH', weight: 46.07, type: '有机化合物', desc: '酒主要成分' },
+            { name: '高锰酸钾', formula: 'KMnO4', weight: 158.034, type: '无机化合物', desc: '强氧化剂' },
+            { name: '草酸', formula: 'H2C2O4', weight: 90.03, type: '有机化合物', desc: '二元弱酸' },
+            { name: '硫酸', formula: 'H2SO4', weight: 98.079, type: '无机化合物', desc: '强酸' },
+            { name: '氢氧化钠', formula: 'NaOH', weight: 40.0, type: '无机化合物', desc: '强碱' },
+            { name: '氯化钠', formula: 'NaCl', weight: 58.44, type: '无机化合物', desc: '食盐' },
+        ];
+
+        // 原子团
+        const RADICALS_DATA = [
+            { name: '高锰酸根', formula: 'MnO4', charge: '1-', desc: '紫红色阴离子' },
+            { name: '草酸根', formula: 'C2O4', charge: '2-', desc: '二元弱酸根' },
+            { name: '硫酸根', formula: 'SO4', charge: '2-', desc: '常见阴离子' },
+            { name: '硝酸根', formula: 'NO3', charge: '1-', desc: '常见阴离子' },
+            { name: '氢氧根', formula: 'OH', charge: '1-', desc: '碱的阴离子' },
+            { name: '碳酸根', formula: 'CO3', charge: '2-', desc: '常见阴离子' },
+            { name: '铵根', formula: 'NH4', charge: '1+', desc: '常见阳离子' },
+        ];
+
+        // 题库
+        const QUESTIONS_DATA = [
+            { type: '元素知识', question: '金的元素符号是？', A: 'Ag', B: 'Au', C: 'Cu', D: 'Fe', answer: 'B',
+                explain: 'Au 来自拉丁文 aurum' },
+            { type: '氧化还原', question: '下列反应中 KMnO4 作为氧化剂的是？', A: 'NaOH+HCl', B: '2H2+O2',
+                C: 'KMnO4+H2O2+H2SO4', D: 'CaO+H2O', answer: 'C', explain: 'KMnO4 被还原' },
+            { type: '离子检验', question: '检验 Fe3+ 常用试剂是？', A: 'KSCN', B: 'AgNO3', C: 'BaCl2', D: 'NaOH', answer: 'A',
+                explain: 'Fe3+ 遇 SCN- 变血红色' },
+            { type: '分子结构', question: '水的化学式是？', A: 'H2O2', B: 'H2O', C: 'HO2', D: 'OH', answer: 'B',
+                explain: '水是 H2O' },
+            { type: '元素知识', question: '碳的元素符号是？', A: 'C', B: 'Ca', C: 'Co', D: 'Cr', answer: 'A',
+                explain: '碳的符号是 C' },
+            { type: '化学计算', question: 'H2O 的分子量约为？', A: '16', B: '18', C: '20', D: '22', answer: 'B',
+                explain: 'H:1×2 + O:16 = 18' },
+        ];
+
+        // 原子量映射 (用于计算)
+        function buildAtomicWeightMap() {
+            const m = {};
+            ELEMENTS_DATA.forEach(e => {
+                const v = parseFloat(e.mass);
+                if (!isNaN(v)) m[e.symbol] = v;
+            });
+            return m;
         }
-        gridContainer.appendChild(grid);
-    }
+        const ATOMIC_WEIGHTS = buildAtomicWeightMap();
 
-    function applySearch() {
-        const kw = document.getElementById('periodicSearch').value.trim().toLowerCase();
-        const field = document.getElementById('periodicField').value;
-        let filtered = dataCache.elements;
-        let highlightSet = null;
-        if (kw) {
-            filtered = dataCache.elements.filter(e => {
-                switch (field) {
-                    case 'all': return (e.symbol.toLowerCase().includes(kw) || e.name.toLowerCase().includes(kw) || e.num.includes(kw) || e.type.toLowerCase().includes(kw) || e.electronConfig.toLowerCase().includes(kw) || e.properties.toLowerCase().includes(kw));
-                    case 'symbol': return e.symbol.toLowerCase().includes(kw);
-                    case 'name': return e.name.toLowerCase().includes(kw);
-                    case 'num': return e.num.includes(kw);
-                    case 'type': return e.type.toLowerCase().includes(kw);
-                    case 'electronConfig': return e.electronConfig.toLowerCase().includes(kw);
-                    case 'properties': return e.properties.toLowerCase().includes(kw);
-                    default: return false;
+        // ============================================================
+        //  2. 化 学 式 解 析 (修复版)
+        // ============================================================
+
+        /**
+         * 解析化学式，返回 { 元素: 个数 } 和电荷
+         * 支持: H2O, Ca(OH)2, MnO4-, Fe3+, (NH4)2SO4, 以及 Unicode 下标
+         */
+        function parseCompound(input) {
+            // 预处理：将 Unicode 下标/上标转为普通数字/符号
+            let s = input
+                .replace(/[₀₁₂₃₄₅₆₇₈₉]/g, d => '₀₁₂₃₄₅₆₇₈₉'.indexOf(d))
+                .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(d))
+                .replace(/⁻/g, '-')
+                .replace(/⁺/g, '+')
+                .replace(/·/g, '.')
+                .replace(/\s/g, '');
+
+            // 提取电荷
+            let charge = 0;
+            const chargeMatch = s.match(/([\d]*)([+-])(?=$|[^A-Za-z0-9])/);
+            if (chargeMatch) {
+                const num = chargeMatch[1] ? parseInt(chargeMatch[1]) : 1;
+                charge = chargeMatch[2] === '+' ? num : -num;
+                s = s.substring(0, s.indexOf(chargeMatch[0]));
+            }
+            // 末尾单电荷
+            if (s.endsWith('+')) { charge = 1;
+                s = s.slice(0, -1); }
+            if (s.endsWith('-')) { charge = -1;
+                s = s.slice(0, -1); }
+
+            // 递归解析
+            function parseGroup(str) {
+                const result = {};
+                let i = 0;
+                while (i < str.length) {
+                    const ch = str[i];
+                    if (ch === '(') {
+                        // 找匹配的 ')'
+                        let depth = 1,
+                            j = i + 1;
+                        while (j < str.length && depth > 0) {
+                            if (str[j] === '(') depth++;
+                            else if (str[j] === ')') depth--;
+                            j++;
+                        }
+                        if (depth !== 0) throw new Error('括号不匹配');
+                        const inner = str.substring(i + 1, j - 1);
+                        // 取后面的数字
+                        let k = j;
+                        let numStr = '';
+                        while (k < str.length && str[k] >= '0' && str[k] <= '9') {
+                            numStr += str[k];
+                            k++;
+                        }
+                        const mult = numStr ? parseInt(numStr) : 1;
+                        const sub = parseGroup(inner);
+                        for (const [el, cnt] of Object.entries(sub)) {
+                            result[el] = (result[el] || 0) + cnt * mult;
+                        }
+                        i = k;
+                    } else if (ch >= 'A' && ch <= 'Z') {
+                        let elem = ch;
+                        if (i + 1 < str.length && str[i + 1] >= 'a' && str[i + 1] <= 'z') {
+                            elem += str[i + 1];
+                            i++;
+                        }
+                        i++;
+                        let numStr = '';
+                        while (i < str.length && str[i] >= '0' && str[i] <= '9') {
+                            numStr += str[i];
+                            i++;
+                        }
+                        const cnt = numStr ? parseInt(numStr) : 1;
+                        result[elem] = (result[elem] || 0) + cnt;
+                    } else if (ch === '[') {
+                        // 当作括号处理
+                        let depth = 1,
+                            j = i + 1;
+                        while (j < str.length && depth > 0) {
+                            if (str[j] === '[') depth++;
+                            else if (str[j] === ']') depth--;
+                            j++;
+                        }
+                        if (depth !== 0) throw new Error('方括号不匹配');
+                        const inner = str.substring(i + 1, j - 1);
+                        let k = j;
+                        let numStr = '';
+                        while (k < str.length && str[k] >= '0' && str[k] <= '9') {
+                            numStr += str[k];
+                            k++;
+                        }
+                        const mult = numStr ? parseInt(numStr) : 1;
+                        const sub = parseGroup(inner);
+                        for (const [el, cnt] of Object.entries(sub)) {
+                            result[el] = (result[el] || 0) + cnt * mult;
+                        }
+                        i = k;
+                    } else {
+                        // 忽略点号、空格等
+                        i++;
+                    }
+                }
+                return result;
+            }
+
+            const counts = parseGroup(s);
+            return { counts, charge };
+        }
+
+        // ============================================================
+        //  3. 配 平 算 法 (零空间法 · 修复版)
+        // ============================================================
+
+        function balanceEquation(reactants, products) {
+            // 解析所有物质
+            const rParsed = reactants.map(r => parseCompound(r));
+            const pParsed = products.map(p => parseCompound(p));
+
+            // 收集所有元素
+            const allElems = new Set();
+            rParsed.forEach(({ counts }) => Object.keys(counts).forEach(e => allElems.add(e)));
+            pParsed.forEach(({ counts }) => Object.keys(counts).forEach(e => allElems.add(e)));
+            const elemList = Array.from(allElems);
+
+            const nR = reactants.length;
+            const nP = products.length;
+            const nVars = nR + nP;
+
+            // 构建矩阵 A (行=元素+电荷, 列=变量)
+            const rows = [];
+            // 元素守恒
+            for (const el of elemList) {
+                const row = [];
+                for (let i = 0; i < nR; i++) {
+                    row.push(rParsed[i].counts[el] || 0);
+                }
+                for (let j = 0; j < nP; j++) {
+                    row.push(-(pParsed[j].counts[el] || 0));
+                }
+                rows.push(row);
+            }
+            // 电荷守恒
+            const hasCharge = rParsed.some(r => r.charge !== 0) || pParsed.some(p => p.charge !== 0);
+            if (hasCharge) {
+                const row = [];
+                for (let i = 0; i < nR; i++) row.push(rParsed[i].charge);
+                for (let j = 0; j < nP; j++) row.push(-pParsed[j].charge);
+                rows.push(row);
+            }
+
+            if (rows.length === 0) throw new Error('无元素或电荷信息');
+
+            // 高斯-约旦消元 (分数运算)
+            const frac = (n, d) => {
+                if (d === undefined) d = 1;
+                if (d < 0) { n = -n;
+                    d = -d; }
+                if (n === 0) return { n: 0, d: 1 };
+                const g = gcd(Math.abs(n), Math.abs(d));
+                return { n: n / g, d: d / g };
+            };
+            const gcd = (a, b) => { while (b) { const t = b;
+                    b = a % b;
+                    a = t; } return a; };
+            const fAdd = (a, b) => frac(a.n * b.d + b.n * a.d, a.d * b.d);
+            const fMul = (a, b) => frac(a.n * b.n, a.d * b.d);
+            const fSub = (a, b) => frac(a.n * b.d - b.n * a.d, a.d * b.d);
+            const fDiv = (a, b) => frac(a.n * b.d, a.d * b.n);
+            const fEq = (a, b) => a.n === b.n && a.d === b.d;
+            const fIsZero = (a) => a.n === 0;
+            const fNeg = (a) => frac(-a.n, a.d);
+
+            // 复制矩阵为分数
+            let M = rows.map(row => row.map(v => frac(v, 1)));
+
+            const R = M.length,
+                C = nVars;
+            let pivotRow = 0,
+                pivotCol = 0;
+            const pivotCols = [];
+            while (pivotRow < R && pivotCol < C) {
+                // 找主元
+                let best = -1;
+                for (let r = pivotRow; r < R; r++) {
+                    if (!fIsZero(M[r][pivotCol])) { best = r; break; }
+                }
+                if (best === -1) { pivotCol++; continue; }
+                // 交换
+                [M[pivotRow], M[best]] = [M[best], M[pivotRow]];
+                // 归一化
+                const piv = M[pivotRow][pivotCol];
+                for (let c = pivotCol; c < C; c++) {
+                    M[pivotRow][c] = fDiv(M[pivotRow][c], piv);
+                }
+                // 消元
+                for (let r = 0; r < R; r++) {
+                    if (r === pivotRow) continue;
+                    const factor = M[r][pivotCol];
+                    if (!fIsZero(factor)) {
+                        for (let c = pivotCol; c < C; c++) {
+                            M[r][c] = fSub(M[r][c], fMul(factor, M[pivotRow][c]));
+                        }
+                    }
+                }
+                pivotCols.push(pivotCol);
+                pivotRow++;
+                pivotCol++;
+            }
+
+            // 找自由变量
+            const freeVars = [];
+            for (let c = 0; c < C; c++) {
+                if (!pivotCols.includes(c)) freeVars.push(c);
+            }
+            if (freeVars.length === 0) throw new Error('无自由变量，无法配平');
+
+            // 尝试每个自由变量，找全正解
+            for (const base of freeVars) {
+                const x = Array(C).fill(frac(0, 1));
+                x[base] = frac(1, 1);
+
+                // 从下往上回代
+                for (let r = pivotCols.length - 1; r >= 0; r--) {
+                    const pc = pivotCols[r];
+                    let total = frac(0, 1);
+                    for (let c = pc + 1; c < C; c++) {
+                        if (!fIsZero(M[r][c])) {
+                            total = fAdd(total, fMul(M[r][c], x[c]));
+                        }
+                    }
+                    x[pc] = fNeg(total);
+                }
+
+                // 检查是否全正或全负
+                const vals = x.map(v => v.n / v.d);
+                const allPositive = vals.every(v => v > 0);
+                const allNegative = vals.every(v => v < 0);
+                if (!allPositive && !allNegative) continue;
+
+                const coefs = allPositive ? vals : vals.map(v => -v);
+                // 化为整数
+                const denoms = coefs.map(v => {
+                    // 找分母
+                    const f = frac(v, 1);
+                    return f.d;
+                });
+                let lcm = 1;
+                for (const d of denoms) {
+                    lcm = lcm * d / gcd(lcm, d);
+                }
+                let ints = coefs.map(v => Math.round(v * lcm));
+                // 化简
+                let g = ints[0];
+                for (let i = 1; i < ints.length; i++) g = gcd(g, ints[i]);
+                ints = ints.map(v => v / g);
+                if (ints.some(v => v <= 0)) continue;
+
+                const rCoef = ints.slice(0, nR);
+                const pCoef = ints.slice(nR);
+                return { rCoef, pCoef };
+            }
+            throw new Error('无全正系数解，反应物/生成物可能不对');
+        }
+
+        // ============================================================
+        //  4. 分 子 量 计 算
+        // ============================================================
+
+        function calcMolecularWeight(formula) {
+            const { counts } = parseCompound(formula);
+            let mass = 0;
+            const unknown = [];
+            for (const [el, cnt] of Object.entries(counts)) {
+                const w = ATOMIC_WEIGHTS[el];
+                if (w !== undefined) {
+                    mass += w * cnt;
+                } else {
+                    unknown.push(el);
+                }
+            }
+            if (unknown.length > 0) {
+                throw new Error(`未知元素: ${unknown.join(', ')}`);
+            }
+            return { mass, counts };
+        }
+
+        // ============================================================
+        //  5. UI 渲染函数
+        // ============================================================
+
+        const panelTitle = document.getElementById('panelTitle');
+        const panelBody = document.getElementById('panelBody');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalContent = document.getElementById('modalContent');
+
+        function showPanel(title, html) {
+            panelTitle.innerHTML = title;
+            panelBody.innerHTML = html;
+            // 重新绑定事件
+            panelBody.querySelectorAll('[data-action]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const action = el.dataset.action;
+                    if (action === 'showModal') {
+                        const content = el.dataset.content || '';
+                        showModal(content);
+                    }
+                });
+            });
+        }
+
+        function showModal(html) {
+            modalContent.innerHTML = html;
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        // ============================================================
+        //  6. 各 功 能 页 面
+        // ============================================================
+
+        // 6.1 周期表
+        function renderPeriodicTable() {
+            const colors = {
+                '非金属': '#FF9800',
+                '碱金属': '#F44336',
+                '碱土金属': '#FF5722',
+                '过渡金属': '#2196F3',
+                '类金属': '#009688',
+                '卤素': '#4CAF50',
+                '惰性气体': '#9C27B0',
+                '贫金属': '#607D8B',
+                '其他': '#795548'
+            };
+            const layout = {};
+            const add = (sym, r, c) => { layout[sym] = [r, c]; };
+            add('H', 1, 1);
+            add('He', 1, 18);
+            const r2 = ['Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne'];
+            r2.forEach((s, i) => { add(s, 2, i < 2 ? i + 1 : i + 11); });
+            const r3 = ['Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar'];
+            r3.forEach((s, i) => { add(s, 3, i < 2 ? i + 1 : i + 11); });
+            const r4 = ['K', 'Ca', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br',
+                'Kr'
+            ];
+            r4.forEach((s, i) => add(s, 4, i + 1));
+            const r5 = ['Rb', 'Sr', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn', 'Sb', 'Te', 'I',
+                'Xe'
+            ];
+            r5.forEach((s, i) => add(s, 5, i + 1));
+            const r6 = ['Cs', 'Ba', 'La', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Pb', 'Bi', 'Po', 'At',
+                'Rn'
+            ];
+            r6.forEach((s, i) => add(s, 6, i + 1));
+            const r7 = ['Fr', 'Ra', 'Ac', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts',
+                'Og'
+            ];
+            r7.forEach((s, i) => add(s, 7, i + 1));
+            const lan = ['La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu'];
+            lan.forEach((s, i) => add(s, 9, i + 4));
+            const act = ['Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr'];
+            act.forEach((s, i) => add(s, 10, i + 4));
+
+            const elemMap = {};
+            ELEMENTS_DATA.forEach(e => { elemMap[e.symbol] = e; });
+
+            let html = `<div class="ptable">`;
+            for (let r = 1; r <= 10; r++) {
+                for (let c = 1; c <= 18; c++) {
+                    let found = null;
+                    for (const [sym, pos] of Object.entries(layout)) {
+                        if (pos[0] === r && pos[1] === c) { found = sym; break; }
+                    }
+                    if (found && elemMap[found]) {
+                        const el = elemMap[found];
+                        const color = colors[el.type] || '#795548';
+                        html += `<div class="el" style="background:${color}33;border-color:${color};" 
+                                      onclick="showElementDetail('${found}')">
+                                    <span class="sym">${found}</span>
+                                    <span class="num">${el.num}</span>
+                                 </div>`;
+                    } else if (found) {
+                        html += `<div class="el" style="opacity:0.2;border-color:#2f1f0e;cursor:default;">
+                                    <span class="sym">${found}</span>
+                                 </div>`;
+                    } else {
+                        html += `<div class="empty"></div>`;
+                    }
+                }
+            }
+            html += `</div>
+                     <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;">
+                        <span class="tag" style="background:#FF980033;border-color:#FF9800;">非金属</span>
+                        <span class="tag" style="background:#F4433633;border-color:#F44336;">碱金属</span>
+                        <span class="tag" style="background:#FF572233;border-color:#FF5722;">碱土金属</span>
+                        <span class="tag" style="background:#2196F333;border-color:#2196F3;">过渡金属</span>
+                        <span class="tag" style="background:#00968833;border-color:#009688;">类金属</span>
+                        <span class="tag" style="background:#4CAF5033;border-color:#4CAF50;">卤素</span>
+                        <span class="tag" style="background:#9C27B033;border-color:#9C27B0;">惰性气体</span>
+                        <span class="tag" style="background:#607D8B33;border-color:#607D8B;">贫金属</span>
+                     </div>
+                     <div style="margin-top:8px;color:#6a5a3e;font-size:0.85rem;text-align:center;">点击元素查看详情</div>`;
+            showPanel('⚗ 元素周期表', html);
+        }
+
+        // 元素详情
+        window.showElementDetail = function(symbol) {
+            const el = ELEMENTS_DATA.find(e => e.symbol === symbol);
+            if (!el) { showModal('<p style="color:#d97a5a;">未找到该元素数据</p>'); return; }
+            const fields = [
+                ['原子序数', el.num],
+                ['原子量', el.mass],
+                ['化学价', el.valence],
+                ['类型', el.type],
+                ['族', el.group],
+                ['周期', el.period],
+                ['电子排布', el.electron],
+                ['发现年份', el.year],
+                ['发现者', el.discoverer],
+                ['特性', el.props]
+            ];
+            let html = `<div style="text-align:center;margin-bottom:12px;">
+                            <span style="font-size:3rem;font-weight:700;color:#eace9f;">${el.symbol}</span>
+                            <div style="font-size:1.4rem;color:#d4c09a;">${el.name}</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 2fr;gap:6px 16px;font-size:0.95rem;">`;
+            for (const [label, value] of fields) {
+                if (value) {
+                    html += `<div style="color:#a6885a;text-align:right;">${label}</div>
+                             <div style="color:#e8ddcc;">${value}</div>`;
+                }
+            }
+            html += `</div>`;
+            showModal(html);
+        };
+
+        // 6.2 方程式
+        function renderEquations() {
+            let html = `
+                <div class="input-row">
+                    <label>🔍 搜索</label>
+                    <input type="text" id="eqSearchInput" placeholder="关键字 ..." style="flex:2;">
+                    <select id="eqFieldSelect">
+                        <option value="all">全部字段</option>
+                        <option value="equation">方程式</option>
+                        <option value="type">类型</option>
+                        <option value="desc">描述</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="searchEquations()">搜索</button>
+                    <button class="btn" onclick="document.getElementById('eqSearchInput').value='';searchEquations();">清空</button>
+                </div>
+                <div class="output-box" id="eqResultBox">`;
+            const eqs = EQUATIONS_DATA;
+            if (eqs.length === 0) {
+                html += `<span class="text-muted">暂无方程式</span>`;
+            } else {
+                eqs.forEach((eq, i) => {
+                    html += `<div style="margin-bottom:10px;border-bottom:1px solid #2f1f0e;padding-bottom:8px;">
+                                <span style="color:#eace9f;font-weight:700;">${i+1}.</span>
+                                <span style="color:#f5d98a;">${eq.equation}</span><br>
+                                <span class="tag">${eq.type}</span>
+                                <span class="text-muted" style="font-size:0.9rem;">${eq.desc}</span>
+                             </div>`;
+                });
+            }
+            html += `</div>`;
+            showPanel('📜 化学方程式', html);
+            // 绑定搜索
+            window.searchEquations = function() {
+                const kw = document.getElementById('eqSearchInput').value.trim().toLowerCase();
+                const field = document.getElementById('eqFieldSelect').value;
+                const box = document.getElementById('eqResultBox');
+                let filtered = EQUATIONS_DATA;
+                if (kw) {
+                    filtered = EQUATIONS_DATA.filter(eq => {
+                        if (field === 'all') {
+                            return eq.equation.toLowerCase().includes(kw) ||
+                                eq.type.toLowerCase().includes(kw) ||
+                                eq.desc.toLowerCase().includes(kw);
+                        } else if (field === 'equation') {
+                            return eq.equation.toLowerCase().includes(kw);
+                        } else if (field === 'type') {
+                            return eq.type.toLowerCase().includes(kw);
+                        } else if (field === 'desc') {
+                            return eq.desc.toLowerCase().includes(kw);
+                        }
+                        return false;
+                    });
+                }
+                if (filtered.length === 0) {
+                    box.innerHTML = '<span class="text-muted">没有匹配的方程式</span>';
+                } else {
+                    let h = '';
+                    filtered.forEach((eq, i) => {
+                        h += `<div style="margin-bottom:10px;border-bottom:1px solid #2f1f0e;padding-bottom:8px;">
+                                    <span style="color:#eace9f;font-weight:700;">${i+1}.</span>
+                                    <span style="color:#f5d98a;">${eq.equation}</span><br>
+                                    <span class="tag">${eq.type}</span>
+                                    <span class="text-muted" style="font-size:0.9rem;">${eq.desc}</span>
+                                 </div>`;
+                    });
+                    box.innerHTML = h;
+                }
+            };
+            // 回车搜索
+            document.getElementById('eqSearchInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') searchEquations();
+            });
+        }
+
+        // 6.3 分子查询
+        function renderMolecules() {
+            let html = `
+                <div class="input-row">
+                    <label>🔍 搜索</label>
+                    <input type="text" id="molSearchInput" placeholder="名称/化学式..." style="flex:2;">
+                    <select id="molFieldSelect">
+                        <option value="all">全部字段</option>
+                        <option value="name">名称</option>
+                        <option value="formula">化学式</option>
+                        <option value="type">类型</option>
+                        <option value="desc">描述</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="searchMolecules()">搜索</button>
+                    <button class="btn" onclick="document.getElementById('molSearchInput').value='';searchMolecules();">清空</button>
+                </div>
+                <div class="output-box" id="molResultBox">`;
+            const mols = MOLECULES_DATA;
+            if (mols.length === 0) {
+                html += `<span class="text-muted">暂无分子数据</span>`;
+            } else {
+                mols.forEach((m, i) => {
+                    html += `<div style="margin-bottom:10px;border-bottom:1px solid #2f1f0e;padding-bottom:8px;">
+                                <span style="color:#eace9f;font-weight:700;">${i+1}.</span>
+                                <span style="color:#f5d98a;">${m.name}</span>
+                                <span class="tag tag-gold">${m.formula}</span>
+                                <span class="text-muted">Mr = ${m.weight}</span><br>
+                                <span class="tag">${m.type}</span>
+                                <span class="text-muted" style="font-size:0.9rem;">${m.desc}</span>
+                             </div>`;
+                });
+            }
+            html += `</div>`;
+            showPanel('🧪 分子查询', html);
+            window.searchMolecules = function() {
+                const kw = document.getElementById('molSearchInput').value.trim().toLowerCase();
+                const field = document.getElementById('molFieldSelect').value;
+                const box = document.getElementById('molResultBox');
+                let filtered = MOLECULES_DATA;
+                if (kw) {
+                    filtered = MOLECULES_DATA.filter(m => {
+                        if (field === 'all') {
+                            return m.name.toLowerCase().includes(kw) ||
+                                m.formula.toLowerCase().includes(kw) ||
+                                m.type.toLowerCase().includes(kw) ||
+                                m.desc.toLowerCase().includes(kw);
+                        } else if (field === 'name') return m.name.toLowerCase().includes(kw);
+                        else if (field === 'formula') return m.formula.toLowerCase().includes(kw);
+                        else if (field === 'type') return m.type.toLowerCase().includes(kw);
+                        else if (field === 'desc') return m.desc.toLowerCase().includes(kw);
+                        return false;
+                    });
+                }
+                if (filtered.length === 0) {
+                    box.innerHTML = '<span class="text-muted">没有匹配的分子</span>';
+                } else {
+                    let h = '';
+                    filtered.forEach((m, i) => {
+                        h += `<div style="margin-bottom:10px;border-bottom:1px solid #2f1f0e;padding-bottom:8px;">
+                                    <span style="color:#eace9f;font-weight:700;">${i+1}.</span>
+                                    <span style="color:#f5d98a;">${m.name}</span>
+                                    <span class="tag tag-gold">${m.formula}</span>
+                                    <span class="text-muted">Mr = ${m.weight}</span><br>
+                                    <span class="tag">${m.type}</span>
+                                    <span class="text-muted" style="font-size:0.9rem;">${m.desc}</span>
+                                 </div>`;
+                    });
+                    box.innerHTML = h;
+                }
+            };
+            document.getElementById('molSearchInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') searchMolecules();
+            });
+        }
+
+        // 6.4 分子量计算
+        function renderWeightCalculator() {
+            let html = `
+                <div style="color:#a6885a;margin-bottom:12px;font-size:0.95rem;">
+                    支持格式: H2O, Ca(OH)2, MnO4-, Fe3+, 也可用 Unicode 下标 如 H₂O
+                </div>
+                <div class="input-row">
+                    <label>化学式</label>
+                    <input type="text" id="weightFormula" placeholder="如 H2O, MnO4-" style="flex:2;">
+                    <button class="btn btn-primary" onclick="calcWeight()">计算</button>
+                    <button class="btn" onclick="document.getElementById('weightFormula').value='';document.getElementById('weightResult').innerHTML='';">清空</button>
+                </div>
+                <div class="output-box" id="weightResult">
+                    <span class="text-muted">输入化学式后点击计算</span>
+                </div>
+            `;
+            showPanel('⚖ 分子量计算', html);
+            window.calcWeight = function() {
+                const formula = document.getElementById('weightFormula').value.trim();
+                const box = document.getElementById('weightResult');
+                if (!formula) { box.innerHTML = '<span class="warn">请输入化学式</span>'; return; }
+                try {
+                    const { mass, counts } = calcMolecularWeight(formula);
+                    let h = `<div style="color:#eace9f;font-weight:700;">${formula} 的相对质量 = ${mass.toFixed(4)}</div>`;
+                    h += `<div style="margin-top:6px;color:#d4c09a;">元素组成:</div>`;
+                    for (const [el, cnt] of Object.entries(counts)) {
+                        const w = ATOMIC_WEIGHTS[el] || 0;
+                        const frac = (w * cnt / mass * 100).toFixed(2);
+                        h += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #2f1f0e;padding:2px 0;">
+                                <span>${el} (×${cnt})</span>
+                                <span>${(w*cnt).toFixed(4)}  (${frac}%)</span>
+                              </div>`;
+                    }
+                    box.innerHTML = h;
+                } catch (e) {
+                    box.innerHTML = `<span class="err">错误: ${e.message}</span>`;
+                }
+            };
+            document.getElementById('weightFormula')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') calcWeight();
+            });
+        }
+
+        // 6.5 配平
+        function renderBalance() {
+            let html = `
+                <div style="color:#a6885a;margin-bottom:12px;font-size:0.95rem;">
+                    用 '+' 连接物质，'->' 或 '=' 表示箭头。支持离子电荷如 MnO4-、Fe3+
+                </div>
+                <div class="input-row">
+                    <label>方程式</label>
+                    <input type="text" id="balanceInput" placeholder="如 KMnO4 + H2O2 + H2SO4 -> MnSO4 + K2SO4 + O2 + H2O" style="flex:3;">
+                </div>
+                <div class="flex-wrap" style="margin-bottom:12px;">
+                    <button class="btn btn-primary" onclick="doBalance()">⚡ 配平</button>
+                    <button class="btn" onclick="document.getElementById('balanceInput').value='';document.getElementById('balanceResult').innerHTML='';">清空</button>
+                    <button class="btn btn-gold" onclick="setBalanceExample('2KMnO4 + 5H2O2 + 3H2SO4 -> 2MnSO4 + K2SO4 + 5O2 + 8H2O')">高锰酸钾+双氧水</button>
+                    <button class="btn btn-gold" onclick="setBalanceExample('MnO4- + H2C2O4 + H+ -> Mn2+ + CO2 + H2O')">草酸+高锰酸钾</button>
+                    <button class="btn btn-gold" onclick="setBalanceExample('Cu + HNO3 -> Cu(NO3)2 + NO + H2O')">铜+稀硝酸</button>
+                </div>
+                <div class="output-box" id="balanceResult">
+                    <span class="text-muted">输入方程式后点击配平</span>
+                </div>
+            `;
+            showPanel('⚡ 化学式配平', html);
+            window.setBalanceExample = function(eq) {
+                document.getElementById('balanceInput').value = eq;
+                doBalance();
+            };
+            window.doBalance = function() {
+                const input = document.getElementById('balanceInput').value.trim();
+                const box = document.getElementById('balanceResult');
+                if (!input) { box.innerHTML = '<span class="warn">请输入方程式</span>'; return; }
+                // 标准化
+                let eq = input.replace(/=/g, '->');
+                const parts = eq.split('->');
+                if (parts.length !== 2) {
+                    box.innerHTML = '<span class="err">格式错误: 需要包含 "->" 或 "="</span>';
+                    return;
+                }
+                const left = parts[0].trim();
+                const right = parts[1].trim();
+                const reactants = left.split('+').map(s => s.trim()).filter(Boolean);
+                const products = right.split('+').map(s => s.trim()).filter(Boolean);
+                if (reactants.length === 0 || products.length === 0) {
+                    box.innerHTML = '<span class="err">反应物或生成物为空</span>';
+                    return;
+                }
+                try {
+                    const { rCoef, pCoef } = balanceEquation(reactants, products);
+                    const rStr = reactants.map((r, i) => (rCoef[i] > 1 ? rCoef[i] : '') + r).join(' + ');
+                    const pStr = products.map((p, j) => (pCoef[j] > 1 ? pCoef[j] : '') + p).join(' + ');
+                    const balanced = rStr + ' -> ' + pStr;
+                    let h = `<div style="color:#7ac77a;font-weight:700;">✅ 配平成功</div>`;
+                    h += `<div style="margin-top:6px;color:#f5d98a;">${balanced}</div>`;
+                    h += `<div style="margin-top:8px;color:#d4c09a;font-size:0.9rem;">`;
+                    h += `反应物系数: [${rCoef.join(', ')}] &nbsp;|&nbsp; 生成物系数: [${pCoef.join(', ')}]`;
+                    h += `</div>`;
+                    // 验证
+                    try {
+                        const rParsed = reactants.map(r => parseCompound(r));
+                        const pParsed = products.map(p => parseCompound(p));
+                        const allElems = new Set();
+                        rParsed.forEach(({ counts }) => Object.keys(counts).forEach(e => allElems.add(e)));
+                        pParsed.forEach(({ counts }) => Object.keys(counts).forEach(e => allElems.add(e)));
+                        let ok = true;
+                        let details = '';
+                        for (const el of allElems) {
+                            let leftSum = 0,
+                                rightSum = 0;
+                            for (let i = 0; i < reactants.length; i++) leftSum += rCoef[i] * (rParsed[i].counts[el] || 0);
+                            for (let j = 0; j < products.length; j++) rightSum += pCoef[j] * (pParsed[j].counts[el] || 0);
+                            if (leftSum !== rightSum) { ok = false;
+                                details += `❌ ${el}: ${leftSum} ≠ ${rightSum}\n`; }
+                        }
+                        if (ok) h += `<div style="margin-top:4px;color:#7ac77a;">✅ 元素守恒验证通过</div>`;
+                        else h += `<div style="margin-top:4px;color:#d97a5a;white-space:pre-wrap;">⚠ 验证异常:\n${details}</div>`;
+                    } catch (e) { /* 忽略验证异常 */ }
+                    box.innerHTML = h;
+                } catch (e) {
+                    box.innerHTML = `<span class="err">配平失败: ${e.message}</span>`;
+                }
+            };
+            document.getElementById('balanceInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') doBalance();
+            });
+        }
+
+        // 6.6 原子团
+        function renderRadicals() {
+            let html = `
+                <div class="input-row">
+                    <label>🔍 搜索</label>
+                    <input type="text" id="radSearchInput" placeholder="名称/化学式..." style="flex:2;">
+                    <button class="btn btn-primary" onclick="searchRadicals()">搜索</button>
+                    <button class="btn" onclick="document.getElementById('radSearchInput').value='';searchRadicals();">清空</button>
+                </div>
+                <div class="output-box" id="radResultBox">`;
+            const rads = RADICALS_DATA;
+            if (rads.length === 0) {
+                html += `<span class="text-muted">暂无原子团数据</span>`;
+            } else {
+                rads.forEach((r, i) => {
+                    html += `<div style="margin-bottom:10px;border-bottom:1px solid #2f1f0e;padding-bottom:8px;">
+                                <span style="color:#eace9f;font-weight:700;">${i+1}.</span>
+                                <span style="color:#f5d98a;">${r.name}</span>
+                                <span class="tag tag-gold">${r.formula}</span>
+                                <span class="tag">${r.charge}</span>
+                                <span class="text-muted" style="font-size:0.9rem;">${r.desc}</span>
+                             </div>`;
+                });
+            }
+            html += `</div>`;
+            showPanel('🔮 原子团', html);
+            window.searchRadicals = function() {
+                const kw = document.getElementById('radSearchInput').value.trim().toLowerCase();
+                const box = document.getElementById('radResultBox');
+                let filtered = RADICALS_DATA;
+                if (kw) {
+                    filtered = RADICALS_DATA.filter(r =>
+                        r.name.toLowerCase().includes(kw) ||
+                        r.formula.toLowerCase().includes(kw) ||
+                        r.charge.toLowerCase().includes(kw) ||
+                        r.desc.toLowerCase().includes(kw)
+                    );
+                }
+                if (filtered.length === 0) {
+                    box.innerHTML = '<span class="text-muted">没有匹配的原子团</span>';
+                } else {
+                    let h = '';
+                    filtered.forEach((r, i) => {
+                        h += `<div style="margin-bottom:10px;border-bottom:1px solid #2f1f0e;padding-bottom:8px;">
+                                    <span style="color:#eace9f;font-weight:700;">${i+1}.</span>
+                                    <span style="color:#f5d98a;">${r.name}</span>
+                                    <span class="tag tag-gold">${r.formula}</span>
+                                    <span class="tag">${r.charge}</span>
+                                    <span class="text-muted" style="font-size:0.9rem;">${r.desc}</span>
+                                 </div>`;
+                    });
+                    box.innerHTML = h;
+                }
+            };
+            document.getElementById('radSearchInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') searchRadicals();
+            });
+        }
+
+        // 6.7 练一练
+        function renderPractice() {
+            let html = `
+                <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;">
+                    <label>学科</label>
+                    <select id="practiceType">
+                        <option value="all">全部</option>
+                        ${[...new Set(QUESTIONS_DATA.map(q => q.type))].map(t => `<option value="${t}">${t}</option>`).join('')}
+                    </select>
+                    <label>题数</label>
+                    <input type="number" id="practiceCount" value="5" style="width:70px;">
+                    <button class="btn btn-primary" onclick="startPractice()">开始练习</button>
+                    <button class="btn" onclick="resetPractice()">重置</button>
+                </div>
+                <div id="practiceArea">
+                    <div class="text-muted" style="text-align:center;padding:30px 0;">点击「开始练习」随机抽题</div>
+                </div>
+            `;
+            showPanel('📝 练一练', html);
+
+            let practiceState = {
+                pool: [],
+                index: 0,
+                score: 0,
+                wrong: [],
+                answered: false,
+                total: 0
+            };
+
+            window.startPractice = function() {
+                const type = document.getElementById('practiceType').value;
+                const count = parseInt(document.getElementById('practiceCount').value) || 5;
+                let pool = QUESTIONS_DATA;
+                if (type !== 'all') pool = pool.filter(q => q.type === type);
+                if (pool.length === 0) {
+                    document.getElementById('practiceArea').innerHTML = '<span class="warn">没有符合条件的题目</span>';
+                    return;
+                }
+                // 打乱
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                const n = Math.min(count, pool.length);
+                practiceState.pool = pool.slice(0, n);
+                practiceState.index = 0;
+                practiceState.score = 0;
+                practiceState.wrong = [];
+                practiceState.total = n;
+                practiceState.answered = false;
+                renderPracticeQuestion();
+            };
+
+            window.resetPractice = function() {
+                document.getElementById('practiceArea').innerHTML =
+                    '<div class="text-muted" style="text-align:center;padding:30px 0;">点击「开始练习」随机抽题</div>';
+                practiceState.pool = [];
+            };
+
+            function renderPracticeQuestion() {
+                const area = document.getElementById('practiceArea');
+                if (practiceState.index >= practiceState.total) {
+                    // 结束
+                    const total = practiceState.total;
+                    const score = practiceState.score;
+                    const pct = total > 0 ? (score / total * 100).toFixed(1) : 0;
+                    let h = `<div style="color:#eace9f;font-size:1.2rem;font-weight:700;">📊 练习结束</div>`;
+                    h += `<div style="margin:12px 0;font-size:1.1rem;">得分: ${score}/${total} (${pct}%)</div>`;
+                    if (practiceState.wrong.length > 0) {
+                        h += `<div style="color:#d97a5a;margin-top:8px;">错题回顾:</div>`;
+                        practiceState.wrong.forEach((q, i) => {
+                            h += `<div style="border-bottom:1px solid #2f1f0e;padding:6px 0;font-size:0.9rem;">
+                                    ${i+1}. ${q.question} <span style="color:#7ac77a;">答案: ${q.answer}</span>
+                                    <span class="text-muted">(${q.explain})</span>
+                                  </div>`;
+                        });
+                    }
+                    area.innerHTML = h;
+                    return;
+                }
+                const q = practiceState.pool[practiceState.index];
+                const letters = ['A', 'B', 'C', 'D'];
+                const opts = [q.A, q.B, q.C, q.D];
+                let h = `<div style="font-size:1.1rem;color:#eace9f;font-weight:700;margin-bottom:10px;">
+                            第 ${practiceState.index+1}/${practiceState.total} 题
+                            <span class="text-muted" style="font-weight:400;font-size:0.9rem;">(得分: ${practiceState.score})</span>
+                         </div>`;
+                h += `<div style="color:#f5d98a;font-size:1.05rem;margin-bottom:14px;">${q.question}</div>`;
+                h += `<div id="practiceOpts">`;
+                opts.forEach((opt, i) => {
+                    const letter = letters[i];
+                    h += `<button class="opt-item" data-letter="${letter}" onclick="selectPracticeOption('${letter}')">
+                                <strong>${letter}.</strong> ${opt}
+                           </button>`;
+                });
+                h += `</div>`;
+                h += `<div id="practiceFeedback" style="margin-top:10px;min-height:28px;"></div>`;
+                area.innerHTML = h;
+                practiceState.answered = false;
+            }
+
+            window.selectPracticeOption = function(letter) {
+                if (practiceState.answered) return;
+                const q = practiceState.pool[practiceState.index];
+                const correct = q.answer.trim() === letter;
+                const opts = document.querySelectorAll('#practiceOpts .opt-item');
+                opts.forEach(el => {
+                    el.classList.add('disabled');
+                    if (el.dataset.letter === q.answer.trim()) el.classList.add('correct');
+                    if (el.dataset.letter === letter && !correct) el.classList.add('wrong');
+                    if (el.dataset.letter === letter) el.classList.add('selected');
+                });
+                const fb = document.getElementById('practiceFeedback');
+                if (correct) {
+                    fb.innerHTML = `<span style="color:#7ac77a;">✅ 正确！</span>`;
+                    practiceState.score++;
+                } else {
+                    fb.innerHTML = `<span style="color:#d97a5a;">❌ 错误！正确答案是 ${q.answer}. ${q.explain}</span>`;
+                    practiceState.wrong.push(q);
+                }
+                practiceState.answered = true;
+                practiceState.index++;
+                setTimeout(renderPracticeQuestion, 1500);
+            };
+
+            // 挂载到全局
+            window.startPractice = startPractice;
+            window.resetPractice = resetPractice;
+            window.selectPracticeOption = selectPracticeOption;
+        }
+
+        // 6.8 关于
+        function renderAbout() {
+            let html = `
+                <div style="text-align:center;padding:20px 0;">
+                    <div style="font-family:'Ma Shan Zheng',cursive;font-size:2.4rem;color:#eace9f;letter-spacing:8px;">化学世界</div>
+                    <div style="color:#a6885a;margin:8px 0 20px 0;">· 古风卷轴 ·</div>
+                    <div style="border-top:1px solid #3d2b18;padding-top:20px;text-align:left;color:#d4c09a;line-height:2;">
+                        <p><strong style="color:#eace9f;">版本</strong> 2.0 · 纯前端</p>
+                        <p><strong style="color:#eace9f;">特色</strong> 周期表 · 方程式 · 分子量 · 配平 · 原子团 · 练一练</p>
+                        <p><strong style="color:#eace9f;">数据</strong> 全部内置，无需网络</p>
+                        <p><strong style="color:#eace9f;">配平算法</strong> 零空间法 (修复版)</p>
+                        <p><strong style="color:#eace9f;">风格</strong> 古风 · 墨韵 · 雅致</p>
+                        <p style="margin-top:12px;color:#6a5a3e;font-size:0.9rem;">
+                            ｜ 格物致知  ·  化育万物 ｜
+                        </p>
+                    </div>
+                </div>
+            `;
+            showPanel('📖 关于', html);
+        }
+
+        // ============================================================
+        //  7. 主菜单导航
+        // ============================================================
+
+        const pageMap = {
+            periodic: renderPeriodicTable,
+            equations: renderEquations,
+            molecules: renderMolecules,
+            weight: renderWeightCalculator,
+            balance: renderBalance,
+            radicals: renderRadicals,
+            practice: renderPractice,
+            about: renderAbout,
+        };
+
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = btn.dataset.page;
+                if (pageMap[page]) {
+                    pageMap[page]();
+                    // 滚动到面板
+                    document.getElementById('contentPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
-            highlightSet = new Set(filtered.map(e => e.symbol));
-        }
-        document.getElementById('periodicResultInfo').textContent = kw ? `找到 ${filtered.length} 个匹配元素` : `共 ${dataCache.elements.length} 个元素`;
-        renderGrid(filtered, highlightSet);
-    }
-    document.getElementById('periodicSearchBtn').onclick = applySearch;
-    document.getElementById('periodicClearBtn').onclick = () => { document.getElementById('periodicSearch').value = ''; applySearch(); };
-    document.getElementById('periodicSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applySearch(); });
-    applySearch();
-}
-
-function getTypeColor(type) {
-    const colors = { '非金属': '#FF9800', '碱金属': '#F44336', '碱土金属': '#FF5722', '过渡金属': '#2196F3', '类金属': '#009688', '卤素': '#4CAF50', '惰性气体': '#9C27B0', '贫金属': '#607D8B', '镧系元素': '#00BCD4', '锕系元素': '#E91E63', '其他': '#795548' };
-    return colors[type] || '#795548';
-}
-
-function showElementDetail(elem) {
-    const modal = document.getElementById('modal');
-    const body = document.getElementById('modalBody');
-    body.innerHTML = `
-        <h2 style="text-align:center;">${elem.symbol} - ${elem.name}</h2>
-        <table style="margin-top:15px;">
-            <tr><th>属性</th><th>值</th></tr>
-            <tr><td>原子序数</td><td>${elem.num}</td></tr>
-            <tr><td>原子量</td><td>${elem.mass}</td></tr>
-            <tr><td>化学价</td><td>${elem.valence}</td></tr>
-            <tr><td>类型</td><td>${elem.type}</td></tr>
-            <tr><td>族</td><td>${elem.group}</td></tr>
-            <tr><td>周期</td><td>${elem.period}</td></tr>
-            <tr><td>电子排布</td><td>${elem.electronConfig}</td></tr>
-            <tr><td>发现年份</td><td>${elem.year}</td></tr>
-            <tr><td>发现者</td><td>${elem.discoverer}</td></tr>
-            <tr><td>特性</td><td>${elem.properties}</td></tr>
-        </table>
-    `;
-    modal.style.display = 'flex';
-}
-
-function renderEquations(container) {
-    if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
-    addBackButton(container);
-    const title = document.createElement('h2');
-    title.textContent = '化学方程式';
-    title.style.fontFamily = 'var(--font-title)'; title.style.color = 'var(--accent)';
-    container.appendChild(title);
-
-    const searchRow = document.createElement('div');
-    searchRow.className = 'search-row';
-    searchRow.innerHTML = `
-        <label>搜索字段:</label>
-        <select id="eqField">
-            <option value="all">全部字段</option>
-            <option value="equation">方程式</option>
-            <option value="type">类型</option>
-            <option value="desc">描述</option>
-        </select>
-        <label>关键字:</label>
-        <input type="text" id="eqSearch" placeholder="输入搜索词">
-        <button class="btn btn-primary" id="eqSearchBtn">搜索</button>
-        <button class="btn" id="eqClearBtn">清空</button>
-        <span id="eqResultInfo" style="margin-left:10px;"></span>
-    `;
-    container.appendChild(searchRow);
-    const resultBox = document.createElement('div');
-    resultBox.className = 'result-box';
-    resultBox.id = 'eqResultBox';
-    container.appendChild(resultBox);
-
-    function applySearch() {
-        const kw = document.getElementById('eqSearch').value.trim().toLowerCase();
-        const field = document.getElementById('eqField').value;
-        let filtered = dataCache.equations;
-        if (kw) {
-            filtered = dataCache.equations.filter(eq => {
-                if (field === 'all') return eq.equation.toLowerCase().includes(kw) || eq.type.toLowerCase().includes(kw) || eq.desc.toLowerCase().includes(kw);
-                if (field === 'equation') return eq.equation.toLowerCase().includes(kw);
-                if (field === 'type') return eq.type.toLowerCase().includes(kw);
-                if (field === 'desc') return eq.desc.toLowerCase().includes(kw);
-                return false;
-            });
-        }
-        document.getElementById('eqResultInfo').textContent = kw ? `找到 ${filtered.length} 个方程式` : `共 ${dataCache.equations.length} 个方程式`;
-        resultBox.innerHTML = filtered.length ? filtered.map((eq, i) => `${i+1}. ${eq.equation}\n   类型: ${eq.type}, 描述: ${eq.desc}\n`).join('\n') : '没有匹配的方程式';
-    }
-    document.getElementById('eqSearchBtn').onclick = applySearch;
-    document.getElementById('eqClearBtn').onclick = () => { document.getElementById('eqSearch').value = ''; applySearch(); };
-    document.getElementById('eqSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applySearch(); });
-    applySearch();
-}
-
-function renderMolecules(container) {
-    if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
-    addBackButton(container);
-    const title = document.createElement('h2');
-    title.textContent = '分子查询';
-    title.style.fontFamily = 'var(--font-title)'; title.style.color = 'var(--accent)';
-    container.appendChild(title);
-    const searchRow = document.createElement('div');
-    searchRow.className = 'search-row';
-    searchRow.innerHTML = `
-        <label>搜索字段:</label>
-        <select id="molField">
-            <option value="all">全部字段</option>
-            <option value="name">名称</option>
-            <option value="formula">化学式</option>
-            <option value="weight">分子量</option>
-            <option value="type">类型</option>
-            <option value="desc">描述</option>
-        </select>
-        <label>关键字:</label>
-        <input type="text" id="molSearch" placeholder="输入搜索词">
-        <button class="btn btn-primary" id="molSearchBtn">搜索</button>
-        <button class="btn" id="molClearBtn">清空</button>
-        <span id="molResultInfo" style="margin-left:10px;"></span>
-    `;
-    container.appendChild(searchRow);
-    const resultBox = document.createElement('div');
-    resultBox.className = 'result-box';
-    resultBox.id = 'molResultBox';
-    container.appendChild(resultBox);
-
-    function applySearch() {
-        const kw = document.getElementById('molSearch').value.trim().toLowerCase();
-        const field = document.getElementById('molField').value;
-        let filtered = dataCache.molecules;
-        if (kw) {
-            filtered = dataCache.molecules.filter(m => {
-                if (field === 'all') return m.name.toLowerCase().includes(kw) || m.formula.toLowerCase().includes(kw) || m.weight.includes(kw) || m.type.toLowerCase().includes(kw) || m.desc.toLowerCase().includes(kw);
-                if (field === 'name') return m.name.toLowerCase().includes(kw);
-                if (field === 'formula') return m.formula.toLowerCase().includes(kw);
-                if (field === 'weight') return m.weight.includes(kw);
-                if (field === 'type') return m.type.toLowerCase().includes(kw);
-                if (field === 'desc') return m.desc.toLowerCase().includes(kw);
-                return false;
-            });
-        }
-        document.getElementById('molResultInfo').textContent = kw ? `找到 ${filtered.length} 个分子` : `共 ${dataCache.molecules.length} 个分子`;
-        resultBox.innerHTML = filtered.length ? filtered.map((m, i) => `${i+1}. ${m.name} (${m.formula})\n   分子量: ${m.weight}, 类型: ${m.type}, 描述: ${m.desc}\n`).join('\n') : '没有匹配项';
-    }
-    document.getElementById('molSearchBtn').onclick = applySearch;
-    document.getElementById('molClearBtn').onclick = () => { document.getElementById('molSearch').value = ''; applySearch(); };
-    document.getElementById('molSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applySearch(); });
-    applySearch();
-}
-
-function renderRadicals(container) {
-    if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
-    addBackButton(container);
-    const title = document.createElement('h2');
-    title.textContent = '原子团查询';
-    title.style.fontFamily = 'var(--font-title)'; title.style.color = 'var(--accent)';
-    container.appendChild(title);
-    const searchRow = document.createElement('div');
-    searchRow.className = 'search-row';
-    searchRow.innerHTML = `
-        <label>搜索字段:</label>
-        <select id="radField">
-            <option value="all">全部字段</option>
-            <option value="name">名称</option>
-            <option value="formula">化学式</option>
-            <option value="charge">电荷</option>
-            <option value="desc">描述</option>
-        </select>
-        <label>关键字:</label>
-        <input type="text" id="radSearch" placeholder="输入搜索词">
-        <button class="btn btn-primary" id="radSearchBtn">搜索</button>
-        <button class="btn" id="radClearBtn">清空</button>
-        <span id="radResultInfo" style="margin-left:10px;"></span>
-    `;
-    container.appendChild(searchRow);
-    const resultBox = document.createElement('div');
-    resultBox.className = 'result-box';
-    resultBox.id = 'radResultBox';
-    container.appendChild(resultBox);
-
-    function applySearch() {
-        const kw = document.getElementById('radSearch').value.trim().toLowerCase();
-        const field = document.getElementById('radField').value;
-        let filtered = dataCache.radicals;
-        if (kw) {
-            filtered = dataCache.radicals.filter(r => {
-                if (field === 'all') return r.name.toLowerCase().includes(kw) || r.formula.toLowerCase().includes(kw) || r.charge.includes(kw) || r.desc.toLowerCase().includes(kw);
-                if (field === 'name') return r.name.toLowerCase().includes(kw);
-                if (field === 'formula') return r.formula.toLowerCase().includes(kw);
-                if (field === 'charge') return r.charge.includes(kw);
-                if (field === 'desc') return r.desc.toLowerCase().includes(kw);
-                return false;
-            });
-        }
-        document.getElementById('radResultInfo').textContent = kw ? `找到 ${filtered.length} 个原子团` : `共 ${dataCache.radicals.length} 个原子团`;
-        resultBox.innerHTML = filtered.length ? filtered.map((r, i) => `${i+1}. ${r.name} (${r.formula})\n   电荷: ${r.charge}, 描述: ${r.desc}\n`).join('\n') : '没有匹配项';
-    }
-    document.getElementById('radSearchBtn').onclick = applySearch;
-    document.getElementById('radClearBtn').onclick = () => { document.getElementById('radSearch').value = ''; applySearch(); };
-    document.getElementById('radSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applySearch(); });
-    applySearch();
-}
-
-function renderCalculator(container) {
-    if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
-    addBackButton(container);
-    const title = document.createElement('h2');
-    title.textContent = '相对质量计算';
-    title.style.fontFamily = 'var(--font-title)'; title.style.color = 'var(--accent)';
-    container.appendChild(title);
-
-    const modeDiv = document.createElement('div');
-    modeDiv.innerHTML = `
-        <label>模式:</label>
-        <select id="calcMode">
-            <option value="formula">化学式</option>
-            <option value="equation">化学方程式</option>
-        </select>
-        <label style="margin-left:15px;">原子量:</label>
-        <select id="weightMode">
-            <option value="exact">精确值</option>
-            <option value="approx">近似值</option>
-        </select>
-    `;
-    container.appendChild(modeDiv);
-
-    const formulaPanel = document.createElement('div');
-    formulaPanel.id = 'formulaPanel';
-    formulaPanel.innerHTML = `
-        <div style="margin-top:10px;">
-            <label>化学式:</label>
-            <input type="text" id="formulaInput" placeholder="如 H_2O, MnO_4^-" style="width:200px;">
-            <span style="color:#888; margin-left:10px;">支持 _ 下标、^ 电荷</span>
-        </div>
-        <div style="margin-top:10px;">
-            <label>扩展:</label>
-            <select id="calcExtMode">
-                <option value="massOnly">仅质量</option>
-                <option value="totalMass">按总质量</option>
-                <option value="elemMass">按元素质量</option>
-            </select>
-            <span id="totalMassInput" style="display:none;">
-                <label>总质量:</label>
-                <input type="number" id="totalMassVal" step="any" style="width:80px;">
-            </span>
-            <span id="elemMassInput" style="display:none;">
-                <label>元素:</label>
-                <input type="text" id="elemNameVal" style="width:50px;">
-                <label>质量:</label>
-                <input type="number" id="elemMassVal" step="any" style="width:80px;">
-            </span>
-        </div>
-        <button class="btn btn-primary" id="calcFormulaBtn">计算</button>
-    `;
-    container.appendChild(formulaPanel);
-
-    const eqPanel = document.createElement('div');
-    eqPanel.id = 'eqPanel';
-    eqPanel.style.display = 'none';
-    eqPanel.innerHTML = `
-        <div style="margin-top:10px;">
-            <label>方程式:</label>
-            <input type="text" id="eqInput" placeholder="如 2H_2 + O_2 -> 2H_2O" style="width:300px;">
-            <span style="color:#888; margin-left:10px;">支持 _ 下标、^ 电荷</span>
-        </div>
-        <button class="btn btn-primary" id="calcEqBtn">计算</button>
-    `;
-    container.appendChild(eqPanel);
-
-    const resultBox = document.createElement('div');
-    resultBox.className = 'result-box';
-    resultBox.id = 'calcResultBox';
-    resultBox.style.marginTop = '15px';
-    resultBox.style.minHeight = '150px';
-    container.appendChild(resultBox);
-
-    document.getElementById('calcMode').addEventListener('change', function() {
-        if (this.value === 'formula') { formulaPanel.style.display = 'block'; eqPanel.style.display = 'none'; }
-        else { formulaPanel.style.display = 'none'; eqPanel.style.display = 'block'; }
-    });
-    document.getElementById('calcExtMode').addEventListener('change', function() {
-        document.getElementById('totalMassInput').style.display = this.value === 'totalMass' ? 'inline' : 'none';
-        document.getElementById('elemMassInput').style.display = this.value === 'elemMass' ? 'inline' : 'none';
-    });
-
-    const aw = () => (document.getElementById('weightMode').value === 'approx' ? atomicWeights.approx : atomicWeights.exact);
-
-    document.getElementById('calcFormulaBtn').onclick = () => {
-        const formula = document.getElementById('formulaInput').value.trim();
-        if (!formula) { resultBox.innerHTML = '请输入化学式'; return; }
-        const weights = aw();
-        try {
-            const { mass, counts } = calculateMolecularWeight(formula, weights);
-            let output = `化学式: ${formula}  |  原子量: ${document.getElementById('weightMode').value}\n`;
-            output += '元素组成:\n';
-            for (let el in counts) output += `  ${el}: ${counts[el]}\n`;
-            output += `\n相对质量 = ${mass.toFixed(4)}\n`;
-            output += '\n--- 质量分数 ---\n';
-            for (let el in counts) {
-                const elMass = weights[el] * counts[el];
-                output += `${el}: ${elMass.toFixed(4)} (${(elMass/mass*100).toFixed(2)}%)\n`;
-            }
-            const extMode = document.getElementById('calcExtMode').value;
-            if (extMode === 'totalMass') {
-                const total = parseFloat(document.getElementById('totalMassVal').value);
-                if (!isNaN(total)) {
-                    output += `\n--- 总质量 = ${total} ---\n`;
-                    for (let el in counts) { const g = weights[el] * counts[el] / mass * total; output += `${el}: ${g.toFixed(4)}\n`; }
-                } else output += '\n⚠ 总质量输入无效';
-            } else if (extMode === 'elemMass') {
-                const el = document.getElementById('elemNameVal').value.trim();
-                const m = parseFloat(document.getElementById('elemMassVal').value);
-                if (el && !isNaN(m)) {
-                    if (!(el in counts)) output += `\n⚠ 元素 ${el} 不在该化学式中`;
-                    else {
-                        const factor = m / (weights[el] * counts[el]);
-                        const total = factor * mass;
-                        output += `\n--- 由 ${el} 质量 ${m} 推算 (总质量: ${total.toFixed(4)}) ---\n`;
-                        for (let other in counts) { const otherMass = weights[other] * counts[other] * factor; output += `${other}: ${otherMass.toFixed(4)}\n`; }
-                    }
-                } else output += '\n⚠ 元素质量输入无效';
-            }
-            resultBox.innerHTML = output;
-        } catch (e) { resultBox.innerHTML = '错误: ' + e.message; }
-    };
-
-    document.getElementById('calcEqBtn').onclick = () => {
-        const eqStr = document.getElementById('eqInput').value.trim();
-        if (!eqStr) { resultBox.innerHTML = '请输入化学方程式'; return; }
-        const formatted = autoFormatEquation(eqStr);
-        if (!formatted.includes('->')) { resultBox.innerHTML = '方程式需包含 ->'; return; }
-        const [left, right] = formatted.split('->');
-        function parseSpecies(side) {
-            return side.split('+').map(s => s.trim()).filter(s => s).map(part => {
-                const m = part.match(/^(\d+)(.*)/);
-                if (m) return { coeff: parseInt(m[1]), formula: m[2].trim() };
-                return { coeff: 1, formula: part.trim() };
-            }).filter(sp => sp.formula);
-        }
-        const reactants = parseSpecies(left);
-        const products = parseSpecies(right);
-        const weights = aw();
-        let output = `方程式: ${formatted}  |  原子量: ${document.getElementById('weightMode').value}\n`;
-        function showList(lst) {
-            lst.forEach(sp => {
-                try { const { mass } = calculateMolecularWeight(sp.formula, weights); output += `  ${sp.coeff}${sp.formula}  Mr=${mass.toFixed(4)}\n`; }
-                catch(e) { output += `  ${sp.coeff}${sp.formula}  计算失败: ${e.message}\n`; }
-            });
-        }
-        output += '反应物:\n'; showList(reactants);
-        output += '生成物:\n'; showList(products);
-        output += '\n提示: 计量计算请使用"化学式配平"模块。';
-        resultBox.innerHTML = output;
-    };
-}
-
-function renderBalance(container) {
-    if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
-    addBackButton(container);
-    const title = document.createElement('h2');
-    title.textContent = '化学式配平';
-    title.style.fontFamily = 'var(--font-title)';
-    title.style.color = 'var(--accent)';
-    container.appendChild(title);
-
-    const inputRow = document.createElement('div');
-    inputRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:5px;';
-    inputRow.innerHTML = `
-        <label style="font-weight:bold;">方程式:</label>
-        <input type="text" id="balanceInput" placeholder="如 MnO_4^- + H_2C_2O_4 + H^+ -> Mn^2+ + CO_2 + H_2O" style="flex:1; min-width:250px;">
-        <button class="btn btn-primary" id="balanceBtn">⚡ 配平</button>
-        <button class="btn" id="balanceClearBtn">清空</button>
-        <button class="btn" id="balanceManualBtn">手动录入</button>
-        <button class="btn" id="balanceSaveBtn">保存记录</button>
-    `;
-    container.appendChild(inputRow);
-
-    const helperRow = document.createElement('div');
-    helperRow.style.marginBottom = '10px';
-    helperRow.innerHTML = `
-        <button class="btn" id="insertChargeBtn">🔺 右上角（电荷）</button>
-        <button class="btn" id="insertSubscriptBtn">🔻 右下角（数量）</button>
-        <span style="color:#888; margin-left:10px;">点击插入 ^ 或 _ 标记</span>
-    `;
-    container.appendChild(helperRow);
-
-    const exampleRow = document.createElement('div');
-    exampleRow.style.marginTop = '8px';
-    exampleRow.innerHTML = `
-        <button class="btn" data-ex="MnO_4^- + H_2C_2O_4 + H^+ -> Mn^2+ + CO_2 + H_2O">例1: 高锰酸钾草酸</button>
-        <button class="btn" data-ex="KMnO_4 + H_2O_2 + H_2SO_4 -> MnSO_4 + K_2SO_4 + O_2 + H_2O">例2: 高锰酸钾双氧水</button>
-        <button class="btn" data-ex="Cu + HNO_3 -> Cu(NO_3)_2 + NO + H_2O">例3: 铜稀硝酸</button>
-    `;
-    container.appendChild(exampleRow);
-    exampleRow.querySelectorAll('button').forEach(btn => {
-        btn.onclick = () => document.getElementById('balanceInput').value = btn.dataset.ex;
-    });
-
-    const resultBox = document.createElement('div');
-    resultBox.className = 'result-box';
-    resultBox.id = 'balanceResultBox';
-    resultBox.style.marginTop = '15px';
-    resultBox.style.minHeight = '180px';
-    container.appendChild(resultBox);
-
-    const verifyLabel = document.createElement('div');
-    verifyLabel.id = 'balanceVerifyLabel';
-    verifyLabel.style.marginTop = '10px';
-    verifyLabel.style.fontSize = '0.9rem';
-    container.appendChild(verifyLabel);
-
-    let currentData = {};
-    let typewriterTimer = null;
-
-    function insertAtCursor(input, text) {
-        const start = input.selectionStart || 0;
-        const end = input.selectionEnd || 0;
-        input.value = input.value.substring(0, start) + text + input.value.substring(end);
-        input.selectionStart = input.selectionEnd = start + text.length;
-        input.focus();
-    }
-
-    const balanceInput = document.getElementById('balanceInput');
-    document.getElementById('insertChargeBtn').onclick = () => insertAtCursor(balanceInput, '^');
-    document.getElementById('insertSubscriptBtn').onclick = () => insertAtCursor(balanceInput, '_');
-
-    function typeWriterEffect(element, text, speed = 20, callback) {
-        if (typewriterTimer) clearTimeout(typewriterTimer);
-        let i = 0;
-        element.textContent = '';
-        function type() {
-            if (i < text.length) {
-                element.textContent += text.charAt(i);
-                i++;
-                typewriterTimer = setTimeout(type, speed);
-            } else if (callback) callback();
-        }
-        type();
-    }
-
-    document.getElementById('balanceBtn').onclick = () => {
-        const eqStr = balanceInput.value.trim();
-        if (!eqStr) { resultBox.innerHTML = '❌ 请输入方程式'; return; }
-        const norm = normalizeEquation(eqStr);
-        if (!norm) { resultBox.innerHTML = '❌ 方程式需包含 -> 或 ='; return; }
-        try {
-            const { rCoeffs, pCoeffs } = balanceNullspace(norm.reactants, norm.products);
-            const verify = verifyBalance(norm.reactants, norm.products, rCoeffs, pCoeffs);
-            const rStr = norm.reactants.map((r, i) => (rCoeffs[i] > 1 ? rCoeffs[i] : '') + r).join(' + ');
-            const pStr = norm.products.map((p, i) => (pCoeffs[i] > 1 ? pCoeffs[i] : '') + p).join(' + ');
-            const balanced = rStr + ' -> ' + pStr;
-            const output = `⚡ 配平成功\n\n原输入: ${eqStr}\n配平结果: ${balanced}\n反应物系数: [${rCoeffs}]\n生成物系数: [${pCoeffs}]`;
-            typeWriterEffect(resultBox, output, 20);
-            verifyLabel.innerHTML = verify.details.replace(/\n/g, '<br>');
-            verifyLabel.style.color = verify.balanced ? 'green' : 'red';
-            currentData = { reactants: norm.reactants, products: norm.products, rCoeffs, pCoeffs, balancedEq: balanced, verified: verify.balanced };
-        } catch (e) {
-            resultBox.innerHTML = '❌ 配平异常: ' + e.message;
-            verifyLabel.innerHTML = '';
-        }
-    };
-
-    document.getElementById('balanceClearBtn').onclick = () => {
-        balanceInput.value = '';
-        if (typewriterTimer) clearTimeout(typewriterTimer);
-        resultBox.innerHTML = '';
-        verifyLabel.innerHTML = '';
-        currentData = {};
-    };
-
-    document.getElementById('balanceManualBtn').onclick = () => {
-        const eqStr = balanceInput.value.trim();
-        const norm = normalizeEquation(eqStr);
-        if (!norm) { alert('方程式无效'); return; }
-        const rCoeffs = [], pCoeffs = [];
-        for (let r of norm.reactants) {
-            const val = prompt(`请输入反应物 ${r} 的系数:`);
-            if (val === null) return;
-            const n = parseInt(val);
-            if (isNaN(n) || n <= 0) { alert('系数须为正整数'); return; }
-            rCoeffs.push(n);
-        }
-        for (let p of norm.products) {
-            const val = prompt(`请输入生成物 ${p} 的系数:`);
-            if (val === null) return;
-            const n = parseInt(val);
-            if (isNaN(n) || n <= 0) { alert('系数须为正整数'); return; }
-            pCoeffs.push(n);
-        }
-        const verify = verifyBalance(norm.reactants, norm.products, rCoeffs, pCoeffs);
-        if (!verify.balanced) { alert('不守恒:\n' + verify.details); return; }
-        const rStr = norm.reactants.map((r, i) => (rCoeffs[i] > 1 ? rCoeffs[i] : '') + r).join(' + ');
-        const pStr = norm.products.map((p, i) => (pCoeffs[i] > 1 ? pCoeffs[i] : '') + p).join(' + ');
-        const balanced = rStr + ' -> ' + pStr;
-        const output = `✏️ 手动配平结果\n${balanced}\n系数: [${rCoeffs}] -> [${pCoeffs}]`;
-        typeWriterEffect(resultBox, output, 20);
-        verifyLabel.innerHTML = verify.details.replace(/\n/g, '<br>');
-        verifyLabel.style.color = 'green';
-        currentData = { reactants: norm.reactants, products: norm.products, rCoeffs, pCoeffs, balancedEq: balanced, verified: true };
-    };
-
-    document.getElementById('balanceSaveBtn').onclick = () => {
-        if (!currentData.balancedEq) { alert('没有可保存的方程式'); return; }
-        const record = `时间: ${new Date().toLocaleString()}\n${currentData.balancedEq}\n检验:\n${verifyLabel.textContent}\n\n`;
-        localStorage.setItem('balanceRecords', (localStorage.getItem('balanceRecords') || '') + record);
-        alert('已保存到本地记录');
-    };
-}
-
-function renderPractice(container) {
-    if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
-    addBackButton(container);
-    const title = document.createElement('h2');
-    title.textContent = '练一练';
-    title.style.fontFamily = 'var(--font-title)'; title.style.color = 'var(--accent)';
-    container.appendChild(title);
-
-    if (!dataCache.questions.length) {
-        container.innerHTML += '<p>题库为空，请检查问题.txt</p>';
-        return;
-    }
-
-    let currentQuestions = [], currentIndex = 0, score = 0, wrongList = [];
-    const setupDiv = document.createElement('div');
-    setupDiv.innerHTML = `
-        <label>学科:</label>
-        <select id="practiceType">
-            <option value="all">全部</option>
-            ${[...new Set(dataCache.questions.map(q => q.type))].map(t => `<option value="${t}">${t}</option>`).join('')}
-        </select>
-        <label style="margin-left:10px;">题数:</label>
-        <input type="number" id="practiceCount" value="10" min="1" style="width:60px;">
-        <button class="btn btn-primary" id="practiceStart">开始练习</button>
-    `;
-    container.appendChild(setupDiv);
-
-    const questionLabel = document.createElement('div');
-    questionLabel.id = 'practiceQuestion';
-    questionLabel.style.cssText = 'margin-top:20px; font-size:1.2rem; font-weight:bold;';
-    container.appendChild(questionLabel);
-    const optionsDiv = document.createElement('div');
-    optionsDiv.id = 'practiceOptions';
-    optionsDiv.style.cssText = 'margin-top:15px;';
-    container.appendChild(optionsDiv);
-    const feedback = document.createElement('div');
-    feedback.id = 'practiceFeedback';
-    feedback.style.cssText = 'margin-top:15px; color: #888;';
-    container.appendChild(feedback);
-    const progress = document.createElement('div');
-    progress.id = 'practiceProgress';
-    progress.style.cssText = 'margin-top:10px;';
-    container.appendChild(progress);
-    const submitBtn = document.createElement('button');
-    submitBtn.className = 'btn btn-primary';
-    submitBtn.textContent = '提交答案';
-    submitBtn.id = 'practiceSubmit';
-    submitBtn.style.marginTop = '15px';
-    container.appendChild(submitBtn);
-
-    let selectedOption = '';
-    function startPractice() {
-        const type = document.getElementById('practiceType').value;
-        let pool = type === 'all' ? dataCache.questions : dataCache.questions.filter(q => q.type === type);
-        let count = parseInt(document.getElementById('practiceCount').value) || 10;
-        if (count > pool.length) count = pool.length;
-        if (count === 0) { feedback.textContent = '无题可选'; return; }
-        pool = [...pool];
-        for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-        currentQuestions = pool.slice(0, count);
-        currentIndex = 0; score = 0; wrongList = [];
-        showQuestion();
-    }
-    function showQuestion() {
-        if (currentIndex >= currentQuestions.length) { showResult(); return; }
-        const q = currentQuestions[currentIndex];
-        questionLabel.textContent = `第${currentIndex + 1}题: ${q.question}`;
-        optionsDiv.innerHTML = '';
-        selectedOption = '';
-        ['A', 'B', 'C', 'D'].forEach(letter => {
-            const label = document.createElement('label');
-            label.style.cssText = 'display:block; margin:5px 0; cursor:pointer;';
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = 'practiceOption';
-            radio.value = letter;
-            radio.onclick = () => selectedOption = letter;
-            label.appendChild(radio);
-            label.appendChild(document.createTextNode(` ${letter}. ${q[letter]}`));
-            optionsDiv.appendChild(label);
         });
-        feedback.textContent = '';
-        progress.textContent = `进度: ${currentIndex + 1}/${currentQuestions.length}  | 得分: ${score}`;
-    }
-    function showResult() {
-        const total = currentQuestions.length;
-        questionLabel.textContent = '练习结束！';
-        optionsDiv.innerHTML = '';
-        let result = `得分: ${score}/${total} (正确率 ${(score/total*100).toFixed(1)}%)`;
-        if (wrongList.length) result += '\n错题: ' + wrongList.map(q => `${q.question} (答案:${q.answer})`).join('；');
-        feedback.textContent = result;
-        feedback.style.color = 'var(--accent)';
-        progress.textContent = '';
-    }
-    document.getElementById('practiceStart').onclick = startPractice;
-    document.getElementById('practiceSubmit').onclick = () => {
-        if (!selectedOption) { feedback.textContent = '请选择一个选项'; feedback.style.color = 'red'; return; }
-        const q = currentQuestions[currentIndex];
-        if (selectedOption === q.answer.trim()) {
-            feedback.textContent = '✅ 正确！'; feedback.style.color = 'green'; score++;
-        } else {
-            feedback.textContent = `❌ 错误！正确答案 ${q.answer}. ${q.explain}`; feedback.style.color = 'red'; wrongList.push(q);
-        }
-        currentIndex++;
-        setTimeout(showQuestion, 1500);
-    };
-}
 
-function renderChangelog(container) {
-    addBackButton(container);
-    const title = document.createElement('h2');
-    title.textContent = '更新日志';
-    title.style.fontFamily = 'var(--font-title)'; title.style.color = 'var(--accent)';
-    container.appendChild(title);
-    const pre = document.createElement('pre');
-    pre.style.cssText = 'white-space:pre-wrap; font-family:var(--font-body); background:#faf6ee; padding:15px; border:1px solid var(--border); border-radius:4px; max-height:500px; overflow-y:auto;';
-    pre.textContent = dataCache.changelog || '暂无更新日志';
-    container.appendChild(pre);
-}
+        // ============================================================
+        //  8. 初始加载
+        // ============================================================
 
-// ==================== 模态框 ====================
-function showModal(html) {
-    const modal = document.getElementById('modal');
-    const body = document.getElementById('modalBody');
-    body.innerHTML = html;
-    modal.style.display = 'flex';
-}
-document.getElementById('closeModal').onclick = () => { document.getElementById('modal').style.display = 'none'; };
-window.onclick = function(event) {
-    if (event.target === document.getElementById('modal')) {
-        document.getElementById('modal').style.display = 'none';
-    }
-};
+        // 默认显示周期表
+        renderPeriodicTable();
 
-// ==================== 导航绑定 ====================
-document.querySelectorAll('.nav button').forEach(btn => {
-    btn.addEventListener('click', () => showPage(btn.dataset.page));
-});
+        console.log('🧪 化学世界 · 古风版 加载完成');
+        console.log(`📊 元素: ${ELEMENTS_DATA.length}, 方程式: ${EQUATIONS_DATA.length}, 分子: ${MOLECULES_DATA.length}, 原子团: ${RADICALS_DATA.length}, 题库: ${QUESTIONS_DATA.length}`);
+    </script>
 
-// ==================== 启动 ====================
-window.addEventListener('DOMContentLoaded', async () => {
-    await initData();
-    showPage('home');
-});
-</script>
 </body>
 </html>
