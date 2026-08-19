@@ -204,7 +204,7 @@
         <button data-page="changelog">📋 更新日志</button>
     </div>
     <div class="content" id="contentArea"></div>
-    <div class="footer">版本 2.4 · 古风网页版 · 数据文件请置于同目录</div>
+    <div class="footer">版本 2.5 · 古风网页版 · 数据文件请置于同目录</div>
 </div>
 
 <div class="modal" id="modal">
@@ -324,7 +324,7 @@ async function initData() {
     } catch (err) { console.error('数据加载出错:', err); alert('数据加载失败，请确认txt文件与HTML同目录。'); }
 }
 
-// ==================== 化学解析核心（修正电荷识别 + 支持下划线） ====================
+// ==================== 化学解析核心（完美版） ====================
 function parseCharge(token) {
     token = token.trim();
     if (!token) return 0;
@@ -336,37 +336,39 @@ function parseCharge(token) {
 }
 
 function parseCompound(compound) {
-    let charge = 0;
+    // 去除空格
     let s = compound.trim();
+    let charge = 0;
 
-    // 处理 ^ 电荷
+    // 1. 处理 ^ 电荷，如 SO4^2-、Fe^3+
     let m = s.match(/\^(\d*[+-])$/);
     if (m) {
         charge = parseCharge(m[1]);
         s = s.substring(0, m.index);
     } else {
-        // 处理括号电荷
+        // 2. 处理括号电荷，如 (SO4)2-、(SO4)-
         m = s.match(/\((\d*[+-])\)$/);
         if (m) {
             charge = parseCharge(m[1]);
             s = s.substring(0, m.index);
         } else {
-            // 处理末尾数字+符号
+            // 3. 处理末尾数字+符号，如 Fe3+、MnO4-
             m = s.match(/(\d+)([+-])$/);
             if (m) {
                 const num = m[1], sign = m[2];
                 const prefix = s.substring(0, m.index);
-                // 如果前缀只含一个元素符号（如 Fe, O），则数字是电荷数
+                // 判断数字是电荷数还是下标
                 if (/^[A-Z][a-z]?$/.test(prefix)) {
+                    // 整个数字是电荷
                     charge = parseCharge(num + sign);
                     s = prefix;
                 } else {
                     // 数字是前一个元素的下标，电荷仅为符号
                     charge = parseCharge(sign);
-                    // s 保持原样
+                    // s保持原样
                 }
             } else {
-                // 处理末尾单个符号
+                // 4. 处理末尾单个符号，如 H+、MnO4-
                 m = s.match(/([+-])$/);
                 if (m) {
                     charge = parseCharge(m[1]);
@@ -376,9 +378,9 @@ function parseCompound(compound) {
         }
     }
 
-    // 替换括号、方括号，并移除下划线标记
+    // 替换括号、方括号，移除下划线标记
     s = s.replace(/\[/g, '(').replace(/\]/g, ')');
-    s = s.replace(/_/g, '');  // 用户输入 H_2O 时，下划线用于标记下标，移除后数字自动成为下标
+    s = s.replace(/_/g, '');  // 下划线用于标记下标，移除后数字自动成为下标
 
     const elemRegex = /[A-Z][a-z]?/g;
     const stack = [{}];
@@ -425,7 +427,7 @@ function parseCompound(compound) {
 
 function autoFormatEquation(raw) {
     let s = raw.replace(/=/g, '->');
-    // 保护电荷、上标、下标，防止被 + 替换误伤
+    // 保护电荷、上标、下标
     const protectedTokens = [];
     const regex = /(\^\s*\d*[+\-]?|_\s*\d+|\d+[+\-]|[+\-]\d*|\([^)]*\)[+\-]?)/g;
     s = s.replace(regex, match => {
@@ -463,6 +465,7 @@ class Fraction {
     isZero() { return this.num === 0n; }
     isNegative() { return this.num < 0n; }
     isPositive() { return this.num > 0n; }
+    equals(other) { return this.num === other.num && this.den === other.den; }
 }
 function gcdBigInt(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { [a, b] = [b, a % b]; } return a; }
 
@@ -503,6 +506,7 @@ function balanceNullspace(reactants, products) {
     }
     if (A.length === 0) throw new Error('无元素或电荷信息');
     const rows = A.length, cols = nVars;
+    // 高斯消元
     let M = A.map(row => row.slice());
     let pivotRow = 0, pivotCol = 0;
     while (pivotRow < rows && pivotCol < cols) {
@@ -526,6 +530,8 @@ function balanceNullspace(reactants, products) {
     const freeVars = [];
     for (let c = 0; c < cols; c++) if (!pivotCols.includes(c)) freeVars.push(c);
     if (freeVars.length === 0) throw new Error('无自由变量，无法配平');
+
+    // 尝试每个自由变量，寻找全正系数解
     for (let base of freeVars) {
         const x = Array(cols).fill().map(() => new Fraction(0));
         x[base] = new Fraction(1);
@@ -952,7 +958,7 @@ function renderCalculator(container) {
     formulaPanel.innerHTML = `
         <div style="margin-top:10px;">
             <label>化学式:</label>
-            <input type="text" id="formulaInput" placeholder="如 H2O, MnO4-" style="width:200px;">
+            <input type="text" id="formulaInput" placeholder="如 H_2O, MnO_4^-" style="width:200px;">
             <span style="color:#888; margin-left:10px;">支持 _ 下标、^ 电荷</span>
         </div>
         <div style="margin-top:10px;">
@@ -983,7 +989,7 @@ function renderCalculator(container) {
     eqPanel.innerHTML = `
         <div style="margin-top:10px;">
             <label>方程式:</label>
-            <input type="text" id="eqInput" placeholder="如 2H2 + O2 -> 2H2O" style="width:300px;">
+            <input type="text" id="eqInput" placeholder="如 2H_2 + O_2 -> 2H_2O" style="width:300px;">
             <span style="color:#888; margin-left:10px;">支持 _ 下标、^ 电荷</span>
         </div>
         <button class="btn btn-primary" id="calcEqBtn">计算</button>
@@ -1072,12 +1078,12 @@ function renderCalculator(container) {
         }
         output += '反应物:\n'; showList(reactants);
         output += '生成物:\n'; showList(products);
-        output += '\n提示: 计量计算请使用“化学式配平”模块。';
+        output += '\n提示: 计量计算请使用"化学式配平"模块。';
         resultBox.innerHTML = output;
     };
 }
 
-// ==================== 化学式配平（核心修复+按钮+打字机） ====================
+// ==================== 化学式配平（最终修复版） ====================
 function renderBalance(container) {
     if (!dataLoaded) { container.innerHTML = '<p>数据加载中...</p>'; return; }
     addBackButton(container);
@@ -1091,7 +1097,7 @@ function renderBalance(container) {
     inputRow.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:5px;';
     inputRow.innerHTML = `
         <label style="font-weight:bold;">方程式:</label>
-        <input type="text" id="balanceInput" placeholder="如 MnO4- + H2C2O4 + H+ -> Mn2+ + CO2 + H2O" style="flex:1; min-width:250px;">
+        <input type="text" id="balanceInput" placeholder="如 MnO_4^- + H_2C_2O_4 + H^+ -> Mn^2+ + CO_2 + H_2O" style="flex:1; min-width:250px;">
         <button class="btn btn-primary" id="balanceBtn">⚡ 配平</button>
         <button class="btn" id="balanceClearBtn">清空</button>
         <button class="btn" id="balanceManualBtn">手动录入</button>
@@ -1099,22 +1105,22 @@ function renderBalance(container) {
     `;
     container.appendChild(inputRow);
 
-    // 新增两个按钮：右上角电荷、右下角数量
+    // 辅助按钮
     const helperRow = document.createElement('div');
     helperRow.style.marginBottom = '10px';
     helperRow.innerHTML = `
         <button class="btn" id="insertChargeBtn">🔺 右上角（电荷）</button>
         <button class="btn" id="insertSubscriptBtn">🔻 右下角（数量）</button>
-        <span style="color:#888; margin-left:10px;">点击插入标记，例如 H_2O、SO_4^2-</span>
+        <span style="color:#888; margin-left:10px;">点击插入 ^ 或 _ 标记</span>
     `;
     container.appendChild(helperRow);
 
     const exampleRow = document.createElement('div');
     exampleRow.style.marginTop = '8px';
     exampleRow.innerHTML = `
-        <button class="btn" data-ex="MnO4- + H2C2O4 + H+ -> Mn2+ + CO2 + H2O">例1: 高锰酸钾草酸</button>
-        <button class="btn" data-ex="KMnO4 + H2O2 + H2SO4 -> MnSO4 + K2SO4 + O2 + H2O">例2: 高锰酸钾双氧水</button>
-        <button class="btn" data-ex="Cu + HNO3 -> Cu(NO3)2 + NO + H2O">例3: 铜稀硝酸</button>
+        <button class="btn" data-ex="MnO_4^- + H_2C_2O_4 + H^+ -> Mn^2+ + CO_2 + H_2O">例1: 高锰酸钾草酸</button>
+        <button class="btn" data-ex="KMnO_4 + H_2O_2 + H_2SO_4 -> MnSO_4 + K_2SO_4 + O_2 + H_2O">例2: 高锰酸钾双氧水</button>
+        <button class="btn" data-ex="Cu + HNO_3 -> Cu(NO_3)_2 + NO + H_2O">例3: 铜稀硝酸</button>
     `;
     container.appendChild(exampleRow);
     exampleRow.querySelectorAll('button').forEach(btn => {
@@ -1137,12 +1143,10 @@ function renderBalance(container) {
     let currentData = {};
     let typewriterTimer = null;
 
-    // 插入标记函数
     function insertAtCursor(input, text) {
         const start = input.selectionStart || 0;
         const end = input.selectionEnd || 0;
-        const value = input.value;
-        input.value = value.substring(0, start) + text + value.substring(end);
+        input.value = input.value.substring(0, start) + text + input.value.substring(end);
         input.selectionStart = input.selectionEnd = start + text.length;
         input.focus();
     }
