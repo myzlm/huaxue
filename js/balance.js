@@ -140,7 +140,7 @@
     CHEM.starBalance = function () {
         const r = CHEM.doBalanceLast;
         if (!r) return;
-        const added = CHEM.favAdd({ cat: '方程式', title: r.text, sub: r.type });
+        const added = CHEM.favAdd({ cat: '方程式', title: r.text, sub: r.type, page: 'balance' });
         CHEM.toast(added ? '已加入收藏' : '已在收藏中');
     };
 

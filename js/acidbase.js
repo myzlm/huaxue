@@ -141,13 +141,13 @@
             <span class="muted" style="font-size:.82rem;">命中 ${list.length} / ${rows.length}</span>
         </div>
         <div class="chip-row" style="margin-bottom:8px;">
-            ${kinds.map(k => `<span class="chip" style="border-color:${k === st.kind ? '#c9a86a' : '#5a3f22'};color:${k === st.kind ? '#eace9f' : '#d4c09a'}" onclick="CHEM.acidKind('${k}')">${k}</span>`).join('')}
+            ${kinds.map(k => `<span class="chip ${k === st.kind ? 'on' : ''}" onclick="CHEM.acidKind('${k}')">${k}</span>`).join('')}
         </div>
         <div class="chip-row" style="margin-bottom:12px;">
-            ${strengths.map(k => `<span class="chip" style="font-size:.78rem;border-color:${k === st.strength ? '#c9a86a' : '#5a3f22'};color:${k === st.strength ? '#eace9f' : '#8a7a5a'}" onclick="CHEM.acidStrength('${k}')">${k}</span>`).join('')}
+            ${strengths.map(k => `<span class="chip ${k === st.strength ? 'on' : ''}" style="font-size:.78rem;" onclick="CHEM.acidStrength('${k}')">${k}</span>`).join('')}
         </div>
         <div class="tbl-wrap"><table class="tbl"><thead><tr>
-            <th>名称</th><th>化学式</th><th>类别</th><th>强弱</th><th>pK</th><th>共轭</th><th>特性与用途</th>
+            <th>名称</th><th>化学式</th><th>类别</th><th>强弱</th><th>pK</th><th>共轭</th><th>特性与用途</th><th></th>
         </tr></thead><tbody>
         ${list.map(r => `<tr>
             <td style="color:#eace9f;">${esc(r.name)}</td>
@@ -157,6 +157,7 @@
             <td class="num mono">${esc(r.pk)}</td>
             <td class="mono">${esc(r.conjugate)}</td>
             <td class="muted">${esc(r.desc)}</td>
+            <td style="width:36px;">${CHEM.favBtn('酸碱', `${r.name}　${r.formula}`, `${r.kind}·${r.strength}　${r.pk}　共轭 ${r.conjugate}　${r.desc}`, 'acidbase')}</td>
         </tr>`).join('')}
         </tbody></table></div>
         <div class="note">pKa 越小酸性越强（每小 1 个单位，酸性强 10 倍）；pKb 同理适用于碱。共轭酸碱对相差一个 H⁺。</div>`;

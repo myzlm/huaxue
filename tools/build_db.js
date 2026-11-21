@@ -62,7 +62,12 @@ const SCHEMAS = {
     '酸碱.txt': { key: 'acids', fields: ['name', 'formula', 'kind', 'strength', 'pk', 'conjugate', 'desc'], required: 5 },
     '指示剂.txt': { key: 'indicators', fields: ['name', 'range', 'acidColor', 'baseColor', 'use'], required: 4 },
     '有机物.txt': { key: 'organics', fields: ['klass', 'example', 'formula', 'group', 'general', 'props'], required: 5 },
-    '有机反应.txt': { key: 'organicReactions', fields: ['type', 'equation', 'condition', 'desc'], required: 4 }
+    '有机反应.txt': { key: 'organicReactions', fields: ['type', 'equation', 'condition', 'desc'], required: 4 },
+    '俗名.txt': { key: 'aliases', fields: ['alias', 'chem', 'formula', 'desc'], required: 4 },
+    '溶解性.txt': { key: 'solubility', fields: ['name', 'formula', 'color', 'solubility', 'klass', 'desc'], required: 6 },
+    '离子检验.txt': { key: 'ions', fields: ['ion', 'method', 'phenomenon', 'desc'], required: 4 },
+    '化学常数.txt': { key: 'constants', fields: ['klass', 'name', 'symbol', 'value', 'unit', 'desc'], required: 6 },
+    '实验.txt': { key: 'experiments', fields: ['name', 'phenomenon', 'conclusion', 'caution'], required: 4 }
 };
 
 function readTable(file) {
@@ -108,7 +113,7 @@ function main() {
 
     const payload = {
         generated: new Date().toISOString(),
-        version: '3.0',
+        version: '3.1',
         data: db
     };
 

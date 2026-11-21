@@ -89,7 +89,7 @@
             <span class="muted" style="font-size:.82rem;">命中 ${list.length} / ${rows.length}</span>
         </div>
         <div class="chip-row" style="margin-bottom:12px;">
-            ${types.map(t => `<span class="chip" style="border-color:${t === st.type ? '#c9a86a' : '#5a3f22'};color:${t === st.type ? '#eace9f' : '#d4c09a'}" onclick="CHEM.orgType('${t}')">${t}</span>`).join('')}
+            ${types.map(t => `<span class="chip ${t === st.type ? 'on' : ''}" onclick="CHEM.orgType('${t}')">${t}</span>`).join('')}
         </div>
         <div class="list">
         ${list.map(r => {
@@ -98,6 +98,7 @@
                 <div class="item-head">
                     <span class="mono" style="color:#f5d98a;font-size:.98rem;">${esc(r.equation)}</span>
                     <span class="tag" style="border-color:${c}88;color:${c}">${esc(r.type)}</span>
+                    <span style="margin-left:auto;display:flex;flex:none;">${CHEM.favBtn('有机反应', r.equation, `${r.type}　条件 ${r.condition}　${r.desc}`, 'organic')}</span>
                 </div>
                 <div class="item-desc"><b style="color:#a6885a;">条件</b> ${esc(r.condition)}　·　${esc(r.desc)}</div>
             </div>`;

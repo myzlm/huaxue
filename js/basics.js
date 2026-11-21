@@ -12,38 +12,90 @@
     /* ============================================================
      *  卷首
      * ============================================================ */
+    const FEATURES = [
+        ['🧫', '酸碱世界', 'pH 精算 · 滴定曲线 · 缓冲与水解', 'acidbase', 'acids'],
+        ['🧬', '有机天地', '官能团 · 反应库 · 不饱和度 · 同分异构', 'organic', 'organics'],
+        ['⚡', '化学式配平', '有理数消元 · 多解自动消歧', 'balance', 'equations'],
+        ['📚', '速查手册', '俗名 · 溶解性 · 离子检验 · 常数 · 实验', 'refs', 'aliases'],
+        ['🗄', '数据库', '跨库统一检索 · 收藏夹 · 错题本', 'database', null],
+        ['📝', '练一练', '难度分级 · 计时 · 错题自动归档', 'practice', 'questions'],
+        ['⚗', '元素周期表', '118 种元素全档 · 化合价与发现者', 'periodic', 'elements'],
+        ['⚖', '分子量计算', '水合物 · 离子 · 燃烧耗氧', 'weight', null]
+    ];
+
+    const QUICK = ['硫酸钡', 'pH', '酯化', '胆矾', 'Fe3+', '缓冲', '银镜', '不饱和度'];
+
     CHEM.pages.home = function () {
-        const d = CHEM.DB;
         const stats = CHEM.stats();
+        const total = CHEM.totalRecords();
+        const maxN = Math.max.apply(null, stats.map(s => s.n)) || 1;
+        const sorted = stats.slice().sort((a, b) => b.n - a.n);
+
         const html = `
-        <div style="text-align:center;margin:6px 0 18px;">
-            <div style="font-family:'Ma Shan Zheng',cursive;font-size:1.9rem;color:#eace9f;letter-spacing:6px;">格物 · 致知</div>
-            <div class="muted" style="margin-top:4px;letter-spacing:3px;font-size:.85rem;">一部可查、可算、可练的古风化典</div>
+        <div class="hero-block">
+            <div class="hero-eyebrow">卷 首 语</div>
+            <div class="hero-title">格物 · 致知</div>
+            <div class="hero-sub">
+                <b>${stats.length}</b> 类 · <b>${total}</b> 条化学数据　可查可算可练<br>
+                纯前端 · 无后端 · 断网可用 · 数据可自行扩充
+            </div>
+            <div class="quick-search">
+                <input type="text" id="homeKw" placeholder="想查什么？硫酸钡 / pH / 酯化 / 胆矾 …"
+                       onkeydown="if(event.key==='Enter')CHEM.quickGo()">
+                <button class="qs-btn" onclick="CHEM.quickGo()">检索</button>
+            </div>
+            <div class="quick-tags">
+                ${QUICK.map((k, i) => `<span class="tag" style="animation-delay:${(i * .02).toFixed(2)}s" onclick="CHEM.homeTag('${k}')">${k}</span>`).join('')}
+            </div>
         </div>
-        <div class="stat-grid">
-            ${stats.map(s => `<div class="stat-card"><div class="n">${s.n}</div><div class="l">${s.label}</div></div>`).join('')}
+
+        <div class="sec-title">分 篇 导 览</div>
+        <div class="fcard-grid">
+            ${FEATURES.map(([icon, title, desc, page, key], i) => {
+                const n = key ? (stats.find(s => s.key === key) || {}).n : null;
+                return `<div class="fcard" style="animation-delay:${(i * .02).toFixed(2)}s" onclick="CHEM.go('${page}')">
+                    <div class="fc-top">
+                        <span class="fc-icon">${icon}</span>
+                        <span class="fc-title">${title}</span>
+                    </div>
+                    ${n ? `<span class="fc-n">${n}</span>` : ''}
+                    <div class="fc-desc">${desc}</div>
+                </div>`;
+            }).join('')}
         </div>
-        <div class="divider"></div>
-        <div class="list">
-            ${[
-                ['🜂 酸碱世界', '三大酸碱理论 · 常见酸碱表 · pH 计算器 · 滴定曲线 · 缓冲溶液 · 盐类水解', 'acidbase'],
-                ['🜄 有机天地', '官能团与同系物 · 有机反应库 · 不饱和度 · 燃烧耗氧 · 同分异构体', 'organic'],
-                ['⚡ 化学式配平', '支持水合物、括号嵌套、离子电荷；多组解自动比对方程式库', 'balance'],
-                ['🗄 数据库', '跨库统一检索 · 收藏夹 · 错题本（本地保存）', 'database'],
-                ['📝 练一练', '按难度分类抽题 · 计时 · 答题卡 · 错题自动归档', 'practice'],
-                ['⚗ 元素周期表', '118 种元素的原子量、化合价、发现者与特性', 'periodic']
-            ].map(([t, d2, page]) => `
-                <div class="item clickable" onclick="CHEM.go('${page}')">
-                    <div class="item-head"><span class="item-title">${t}</span></div>
-                    <div class="item-desc">${d2}</div>
-                </div>`).join('')}
+
+        <div class="sec-title">典 藏 分 布</div>
+        <div class="bar-list">
+            ${sorted.map(s => `<div class="bar-row" onclick="CHEM.homeBar('${s.cat}')" title="点击进入「${s.label}」分类检索">
+                <span class="bl">${s.label}</span>
+                <span class="bar-track"><span class="bar-fill" style="width:${Math.max(2, s.n / maxN * 100).toFixed(1)}%"></span></span>
+                <span class="bn">${s.n}</span>
+            </div>`).join('')}
         </div>
-        <div class="note" style="margin-top:16px;">
-            <b>数据来源</b>：同目录 txt 数据文件（共 ${Object.keys(d).reduce((a, k) => a + d[k].length, 0)} 条）。
-            以 http 方式打开时实时读取 txt；直接双击打开（file://）时自动使用 db.js 离线快照——
-            二者内容一致，改完 txt 后执行 <span class="mono">node tools/build_db.js</span> 即可刷新快照。
+
+        <div class="note" style="margin-top:18px;">
+            <b>数据来源</b>：仓库根目录的 txt 数据文件，共 ${total} 条。
+            以 http 方式打开时实时读取 txt；直接双击打开（file://）时自动使用
+            <span class="mono">db.js</span> 离线快照——二者内容一致，改完 txt 后执行
+            <span class="mono">node tools/build_db.js</span> 即可刷新快照。
         </div>`;
         UI.panel('卷 首', '· 化学世界 v' + CHEM.version + ' ·', html);
+    };
+
+    /* 首页快捷检索：直接跳到数据库并带上关键词 */
+    CHEM.quickGo = function () {
+        const el = document.getElementById('homeKw');
+        const kw = el ? el.value.trim() : '';
+        CHEM.state.db = { tab: 'search', cat: '全部', kw: kw };
+        CHEM.go('database');
+    };
+    CHEM.homeTag = function (kw) {
+        CHEM.state.db = { tab: 'search', cat: '全部', kw: kw };
+        CHEM.go('database');
+    };
+    CHEM.homeBar = function (cat) {
+        CHEM.state.db = { tab: 'search', cat: cat, kw: '' };
+        CHEM.go('database');
     };
 
     /* ============================================================
@@ -113,7 +165,11 @@
                 <div style="font-size:1.3rem;color:#d4c09a;margin-top:2px;">${esc(el.name)}</div>
                 <div style="font-size:.8rem;color:#8a7a5a;">${esc(el.type)}</div>
             </div>
-            ${UI.kv(fields.map(([k, v]) => [k, esc(v)]))}`);
+            ${UI.kv(fields.map(([k, v]) => [k, esc(v)]))}
+            <div class="field" style="margin-top:16px;padding-top:12px;border-top:1px solid #2c2216;">
+                ${CHEM.favBtn('元素', `${el.symbol}　${el.name}`, `原子序数 ${el.num}　原子量 ${el.mass}　${el.type}`, 'periodic')}
+                <span class="muted" style="font-size:.8rem;">收藏这个元素，方便在「数据库 · 收藏夹」里回看</span>
+            </div>`);
     };
 
     /* ============================================================
@@ -139,7 +195,7 @@
                 <span class="muted" style="font-size:.82rem;">命中 ${filtered.length} 条</span>
              </div>
              <div class="chip-row" style="margin-bottom:12px;">
-                ${types.map(t => `<span class="chip" style="border-color:${t === st.type ? '#c9a86a' : '#5a3f22'};color:${t === st.type ? '#eace9f' : '#d4c09a'}" onclick="CHEM.eqType('${t}')">${t}</span>`).join('')}
+                ${types.map(t => `<span class="chip ${t === st.type ? 'on' : ''}" onclick="CHEM.eqType('${t}')">${t}</span>`).join('')}
              </div>
              <div class="list">
                 ${filtered.slice(0, st.limit).map(r => `
@@ -147,6 +203,7 @@
                         <div class="item-head">
                             <span class="mono" style="color:#f5d98a;font-size:1rem;">${esc(r.equation)}</span>
                             <span class="tag">${esc(r.type)}</span>
+                            <span style="margin-left:auto;display:flex;flex:none;">${CHEM.favBtn('方程式', r.equation, `${r.type}　${r.desc}`, 'equations')}</span>
                         </div>
                         <div class="item-desc">${esc(r.desc)}</div>
                     </div>`).join('')}
@@ -200,7 +257,7 @@
                 <span class="muted" style="font-size:.82rem;">命中 ${filtered.length} 条</span>
              </div>
              <div class="chip-row" style="margin-bottom:12px;">
-                ${types.map(t => `<span class="chip" style="border-color:${t === st.type ? '#c9a86a' : '#5a3f22'};color:${t === st.type ? '#eace9f' : '#d4c09a'}" onclick="CHEM.molType('${t}')">${t === '全部' ? '全部' : t.replace('化合物', '')} ${t === '全部' ? '' : '(' + rows.filter(r => r.type === t).length + ')'}</span>`).join('')}
+                ${types.map(t => `<span class="chip ${t === st.type ? 'on' : ''}" onclick="CHEM.molType('${t}')">${t === '全部' ? '全部' : t.replace('化合物', '')} ${t === '全部' ? '' : '(' + rows.filter(r => r.type === t).length + ')'}</span>`).join('')}
              </div>
              <div class="list">
                 ${filtered.slice(0, st.limit).map(r => `
@@ -210,6 +267,7 @@
                             <span class="tag tag-gold mono">${esc(CHEM.prettySafe(r.formula))}</span>
                             <span class="muted" style="font-size:.8rem;">Mr = ${esc(r.weight)}</span>
                             <span class="tag">${esc(r.type)}</span>
+                            <span style="margin-left:auto;display:flex;flex:none;">${CHEM.favBtn('分子', r.name, `${r.formula}　Mr ${r.weight}　${r.desc}`, 'molecules')}</span>
                         </div>
                         <div class="item-desc">${esc(r.desc)}</div>
                     </div>`).join('')}
@@ -342,7 +400,7 @@
         UI.panel('🔮 原子团（根）', `· ${rows.length} 种 ·`,
             `<div class="field"><input type="text" id="radKw" placeholder="名称 / 化学式 / 电荷 …" style="flex:2;min-width:200px;">
                 <button class="btn btn-primary btn-sm" onclick="CHEM.radSearch()">检索</button></div>
-             <div class="tbl-wrap"><table class="tbl"><thead><tr><th>名称</th><th>化学式</th><th>电荷</th><th>说明</th></tr></thead>
+             <div class="tbl-wrap"><table class="tbl"><thead><tr><th>名称</th><th>化学式</th><th>电荷</th><th>说明</th><th></th></tr></thead>
              <tbody id="radBody">${radRows(rows)}</tbody></table></div>`);
         const input = document.getElementById('radKw');
         if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') CHEM.radSearch(); });
@@ -351,13 +409,14 @@
         return rows.map(r => `<tr><td style="color:#eace9f;">${esc(r.name)}</td>
             <td class="mono">${esc(CHEM.prettySafe(r.formula))}</td>
             <td><span class="tag tag-gold">${esc(r.charge)}</span></td>
-            <td class="muted">${esc(r.desc)}</td></tr>`).join('');
+            <td class="muted">${esc(r.desc)}</td>
+            <td style="width:36px;">${CHEM.favBtn('原子团', `${r.name}　${r.formula}`, `电荷 ${r.charge}　${r.desc}`, 'radicals')}</td></tr>`).join('');
     }
     CHEM.radSearch = function () {
         const kw = document.getElementById('radKw').value.trim().toLowerCase();
         const rows = CHEM.DB.radicals.filter(r =>
             !kw || (r.name + r.formula + r.charge + r.desc).toLowerCase().includes(kw));
-        document.getElementById('radBody').innerHTML = radRows(rows) || '<tr><td colspan="4" class="muted">没有匹配项</td></tr>';
+        document.getElementById('radBody').innerHTML = radRows(rows) || '<tr><td colspan="5" class="muted">没有匹配项</td></tr>';
     };
 
     /* ============================================================
@@ -371,11 +430,12 @@
                 <div class="muted" style="font-size:.85rem;margin-top:4px;letter-spacing:2px;">纯前端 · 无后端 · 数据可自行扩充</div>
             </div>
             ${UI.kv([
-                ['版本', CHEM.version + '（酸碱 · 有机 · 配平三修）'],
-                ['数据', `${Object.keys(CHEM.DB).reduce((a, k) => a + CHEM.DB[k].length, 0)} 条，来源：同目录 txt`],
+                ['版本', CHEM.version + '（酸碱 · 有机 · 配平 · 速查四修）'],
+                ['数据', `${CHEM.totalRecords()} 条 / ${CHEM.stats().length} 类，来源：根目录 txt`],
                 ['加载方式', CHEM.source === 'files' ? '实时读取 txt 文件' : CHEM.source === 'snapshot' ? '离线快照 db.js（fetch 不可用）' : '数据缺失'],
                 ['配平算法', '精确有理数高斯消元 + 零空间搜索；多解时比对方程式库'],
                 ['分子量', '教材近似值 / 精确值；支持水合物与离子'],
+                ['检索', '跨库关键词检索 · 高亮命中 · 结果可导出 CSV'],
                 ['风格', '古风卷轴 · 墨韵 · 雅致']
             ])}
             <div class="divider"></div>

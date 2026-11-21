@@ -6,7 +6,7 @@
     'use strict';
 
     const CHEM = window.CHEM = window.CHEM || {};
-    CHEM.version = '3.0';
+    CHEM.version = '3.1';
 
     /* ============================================================
      *  一、数据集定义
@@ -20,13 +20,19 @@
         { file: '酸碱.txt', key: 'acids', min: 5, fields: ['name', 'formula', 'kind', 'strength', 'pk', 'conjugate', 'desc'] },
         { file: '指示剂.txt', key: 'indicators', min: 4, fields: ['name', 'range', 'acidColor', 'baseColor', 'use'] },
         { file: '有机物.txt', key: 'organics', min: 5, fields: ['klass', 'example', 'formula', 'group', 'general', 'props'] },
-        { file: '有机反应.txt', key: 'organicReactions', min: 4, fields: ['type', 'equation', 'condition', 'desc'] }
+        { file: '有机反应.txt', key: 'organicReactions', min: 4, fields: ['type', 'equation', 'condition', 'desc'] },
+        { file: '俗名.txt', key: 'aliases', min: 4, fields: ['alias', 'chem', 'formula', 'desc'] },
+        { file: '溶解性.txt', key: 'solubility', min: 6, fields: ['name', 'formula', 'color', 'solubility', 'klass', 'desc'] },
+        { file: '离子检验.txt', key: 'ions', min: 4, fields: ['ion', 'method', 'phenomenon', 'desc'] },
+        { file: '化学常数.txt', key: 'constants', min: 6, fields: ['klass', 'name', 'symbol', 'value', 'unit', 'desc'] },
+        { file: '实验.txt', key: 'experiments', min: 4, fields: ['name', 'phenomenon', 'conclusion', 'caution'] }
     ];
     CHEM.DATASETS = DATASETS;
 
     CHEM.DB = {
         elements: [], equations: [], molecules: [], radicals: [], questions: [],
-        acids: [], indicators: [], organics: [], organicReactions: []
+        acids: [], indicators: [], organics: [], organicReactions: [],
+        aliases: [], solubility: [], ions: [], constants: [], experiments: []
     };
     CHEM.WEIGHTS = {};
     CHEM.source = 'none';
@@ -162,6 +168,7 @@
         });
         CHEM.SYMBOLS = new Set(CHEM.DB.elements.map(e => e.symbol));
         CHEM.buildIndex();
+        if (CHEM.invalidateRows) CHEM.invalidateRows();
         return CHEM.DB;
     };
 
@@ -174,11 +181,21 @@
             { key: 'equations', label: '方程式', cat: '方程式', n: d.equations.length, file: '方程式.txt' },
             { key: 'radicals', label: '原子团', cat: '原子团', n: d.radicals.length, file: '原子团.txt' },
             { key: 'acids', label: '酸碱', cat: '酸碱', n: d.acids.length, file: '酸碱.txt' },
-            { key: 'organics', label: '有机物类别', cat: '有机物', n: d.organics.length, file: '有机物.txt' },
+            { key: 'organics', label: '有机类别', cat: '有机物', n: d.organics.length, file: '有机物.txt' },
             { key: 'organicReactions', label: '有机反应', cat: '有机反应', n: d.organicReactions.length, file: '有机反应.txt' },
             { key: 'indicators', label: '指示剂', cat: '指示剂', n: d.indicators.length, file: '指示剂.txt' },
+            { key: 'aliases', label: '俗名', cat: '俗名', n: (d.aliases || []).length, file: '俗名.txt' },
+            { key: 'solubility', label: '溶解性', cat: '溶解性', n: (d.solubility || []).length, file: '溶解性.txt' },
+            { key: 'ions', label: '离子检验', cat: '离子检验', n: (d.ions || []).length, file: '离子检验.txt' },
+            { key: 'constants', label: '常数', cat: '常数', n: (d.constants || []).length, file: '化学常数.txt' },
+            { key: 'experiments', label: '实验', cat: '实验', n: (d.experiments || []).length, file: '实验.txt' },
             { key: 'questions', label: '题目', cat: '题目', n: d.questions.length, file: '问题.txt' }
         ];
+    };
+
+    /* 数据总量 */
+    CHEM.totalRecords = function () {
+        return CHEM.stats().reduce((a, s) => a + s.n, 0);
     };
 
     /* ============================================================
@@ -855,7 +872,7 @@
             UI.panel('出错了', '', `<div class="note err">页面渲染失败：${esc(e.message)}</div>`);
         }
         const panel = document.getElementById('contentPanel');
-        if (panel && typeof panel.scrollIntoView === 'function') {
+        if (panel && !CHEM._noScroll && typeof panel.scrollIntoView === 'function') {
             try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { /* 老浏览器忽略 */ }
         }
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.page === key));
@@ -880,6 +897,8 @@
         }
         /* 3) 首页（支持 #page 直接定位） */
         const start = (location.hash || '').replace('#', '');
+        CHEM._noScroll = true;                 /* 首次进入不要跳过报头 */
         CHEM.go(CHEM.pages[start] ? start : 'home');
+        CHEM._noScroll = false;
     };
 })();
