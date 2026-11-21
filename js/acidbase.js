@@ -41,6 +41,76 @@
 
     function phOf(h) { return -Math.log10(h); }
 
+    /* ============================================================
+     *  pH 估算：给定「酸碱表中的一条记录 + 浓度」求 pH
+     *  —— 强酸/强碱按化学式判断元数，弱酸/弱碱用 pK 精确求解
+     * ============================================================ */
+    function leadH(formula) {
+        const m = String(formula || '').match(/^H(\d*)/);
+        if (!m) return 1;
+        return m[1] ? parseInt(m[1], 10) : 1;
+    }
+    function ohCount(formula) {
+        const s = String(formula || '');
+        const m = s.match(/\(OH\)(\d+)/);
+        if (m) return parseInt(m[1], 10);
+        const n = (s.match(/OH/g) || []).length;
+        return n || 1;
+    }
+    /* 弱碱：[BH+] + [H+] = [OH-] */
+    function weakBaseH(c, kb) {
+        const f = h => {
+            const oh = KW / h;
+            return c * oh / (kb + oh) + h - oh;
+        };
+        let lo = 1e-16, hi = 10;
+        for (let i = 0; i < 300; i++) {
+            const mid = Math.sqrt(lo * hi);
+            if (f(mid) > 0) hi = mid; else lo = mid;
+        }
+        return Math.sqrt(lo * hi);
+    }
+
+    function acidPH(r, c) {
+        const pk = parsePk(r.pk);
+        /* 只有「强酸 / 强碱」按完全电离处理；中强酸仍按 pK 解离 */
+        const strong = r.strength === '强酸' || r.strength === '强碱';
+        if (r.kind === '中性') return { pH: 7, h: 1e-7, mode: 'neutral', n: 0 };
+        if (r.kind === '酸') {
+            if (strong) {
+                const n = leadH(r.formula);
+                const h = solveH({ strongAcid: n * c });
+                return { pH: phOf(h), h: h, mode: 'strong', n: n };
+            }
+            const ka = pk === null ? 1e-5 : Math.pow(10, -pk);
+            const h = solveH({ weakAcid: c, Ka: ka });
+            return { pH: phOf(h), h: h, mode: 'weak', n: 1, k: ka, alpha: ka / (ka + h) * 100 };
+        }
+        if (strong) {
+            const n = ohCount(r.formula);
+            const h = solveH({ cation: n * c });
+            return { pH: phOf(h), h: h, mode: 'strong', n: n, isBase: true };
+        }
+        const kb = pk === null ? 1e-5 : Math.pow(10, -pk);
+        const h = weakBaseH(c, kb);
+        const oh = KW / h;
+        return { pH: phOf(h), h: h, mode: 'weak', n: 1, k: kb, isBase: true, alpha: kb / (kb + oh) * 100 };
+    }
+
+    /* pH → 颜色（近似万能指示剂色谱） */
+    function phColor(p) {
+        if (!isFinite(p)) return '#8a7a5a';
+        if (p < 2.5) return '#e0503c';
+        if (p < 5) return '#e08a4a';
+        if (p < 6.8) return '#d9c46a';
+        if (p < 7.6) return '#79c48d';
+        if (p < 10.5) return '#5aa0d8';
+        return '#9a72d8';
+    }
+    function phPill(p) {
+        return `<span class="ph-pill" style="--pc:${phColor(p)}">${isFinite(p) ? fmt(p, 2) : '—'}</span>`;
+    }
+
     CHEM.pages.acidbase = function () {
         const st = CHEM.state.acid = CHEM.state.acid || { tab: 'theory' };
         const body = ({
@@ -67,6 +137,10 @@
         CHEM.state.acid.tab = t;
         CHEM.pages.acidbase();
     };
+
+    /* 供数据库等其它模块引用 */
+    CHEM.acidPH = acidPH;
+    CHEM.phColor = phColor;
 
     /* ============================================================
      *  一、三大理论
@@ -127,14 +201,17 @@
     function tableHtml() {
         const rows = CHEM.DB.acids;
         if (!rows.length) return UI.note('未加载 酸碱.txt', 'err');
-        const st = CHEM.state.acidTable = CHEM.state.acidTable || { kind: '全部', strength: '全部', kw: '' };
+        const st = CHEM.state.acidTable = CHEM.state.acidTable || { kind: '全部', strength: '全部', kw: '', c: 0.1 };
+        if (!st.c) st.c = 0.1;
         const kinds = ['全部', '酸', '碱', '中性'];
         const strengths = ['全部', '强酸', '中强酸', '弱酸', '极弱酸', '强碱', '中强碱', '弱碱', '极弱碱', '中性'];
         const list = rows.filter(r =>
             (st.kind === '全部' || r.kind === st.kind) &&
             (st.strength === '全部' || r.strength === st.strength) &&
             (!st.kw || (r.name + r.formula + r.desc).toLowerCase().includes(st.kw.toLowerCase())));
+        CHEM.state.acidTable._list = list;
 
+        const concs = [1, 0.1, 0.01, 0.001];
         let h = `<div class="field">
             <input type="text" id="acidKw" placeholder="名称 / 化学式 / 用途 …" value="${esc(st.kw)}" style="flex:2;min-width:180px;">
             <button class="btn btn-primary btn-sm" onclick="CHEM.acidSearch()">检索</button>
@@ -143,26 +220,114 @@
         <div class="chip-row" style="margin-bottom:8px;">
             ${kinds.map(k => `<span class="chip ${k === st.kind ? 'on' : ''}" onclick="CHEM.acidKind('${k}')">${k}</span>`).join('')}
         </div>
-        <div class="chip-row" style="margin-bottom:12px;">
+        <div class="chip-row" style="margin-bottom:10px;">
             ${strengths.map(k => `<span class="chip ${k === st.strength ? 'on' : ''}" style="font-size:.78rem;" onclick="CHEM.acidStrength('${k}')">${k}</span>`).join('')}
         </div>
+        <div class="field" style="margin-bottom:4px;">
+            <label>计算 pH 所用浓度</label>
+            ${concs.map(c => `<span class="chip ${Math.abs(st.c - c) < 1e-12 ? 'on' : ''}" onclick="CHEM.acidConc(${c})">${c} mol/L</span>`).join('')}
+            <input type="number" id="acidC" step="any" min="1e-6" value="${st.c}" style="width:110px;">
+            <button class="btn btn-sm" onclick="CHEM.acidConcCustom()">按此浓度重算</button>
+        </div>
+        ${phRuler(list, st.c)}
         <div class="tbl-wrap"><table class="tbl"><thead><tr>
-            <th>名称</th><th>化学式</th><th>类别</th><th>强弱</th><th>pK</th><th>共轭</th><th>特性与用途</th><th></th>
+            <th>名称</th><th>化学式</th><th>类别</th><th>强弱</th><th>pK</th>
+            <th title="按当前浓度计算的理论 pH">pH<span class="muted" style="font-size:.68rem;"> @${esc(String(st.c))}M</span></th>
+            <th>共轭</th><th>特性与用途</th><th></th>
         </tr></thead><tbody>
-        ${list.map(r => `<tr>
-            <td style="color:#eace9f;">${esc(r.name)}</td>
+        ${list.map((r, i) => {
+            const e = acidPH(r, st.c);
+            return `<tr>
+            <td style="color:#eace9f;cursor:pointer;" onclick="CHEM.acidDetail(${i})">${esc(r.name)}</td>
             <td class="mono">${esc(CHEM.prettySafe(r.formula))}</td>
             <td>${esc(r.kind)}</td>
             <td><span class="tag ${/强/.test(r.strength) ? 'tag-gold' : ''}">${esc(r.strength)}</span></td>
             <td class="num mono">${esc(r.pk)}</td>
+            <td>${phPill(e.pH)}</td>
             <td class="mono">${esc(r.conjugate)}</td>
             <td class="muted">${esc(r.desc)}</td>
-            <td style="width:36px;">${CHEM.favBtn('酸碱', `${r.name}　${r.formula}`, `${r.kind}·${r.strength}　${r.pk}　共轭 ${r.conjugate}　${r.desc}`, 'acidbase')}</td>
-        </tr>`).join('')}
+            <td style="width:36px;">${CHEM.favBtn('酸碱', `${r.name}　${r.formula}`, `${r.kind}·${r.strength}　${r.pk}　pH ${fmt(e.pH, 2)}　${r.desc}`, 'acidbase')}</td>
+        </tr>`;
+        }).join('')}
         </tbody></table></div>
-        <div class="note">pKa 越小酸性越强（每小 1 个单位，酸性强 10 倍）；pKb 同理适用于碱。共轭酸碱对相差一个 H⁺。</div>`;
+        <div class="note">
+            pH 值按 <b>${esc(String(st.c))} mol/L</b> 水溶液、25 ℃ 由 pK 精确求解（弱酸弱碱解离方程，非近似公式）。
+            强酸按化学式中氢原子数计元数，弱酸只计第一步电离；碱按 OH 数目计。
+            <b>点击名称</b>可看该物质在 1 / 0.1 / 0.01 / 0.001 mol/L 下的 pH 与电离度。
+        </div>`;
         return h;
     }
+
+    /* pH 标尺：把当前筛选结果按 pH 落在 0~14 的色带上 */
+    function phRuler(list, c) {
+        const marks = list.map((r, i) => {
+            const e = acidPH(r, c);
+            return { i: i, name: r.name, pH: e.pH };
+        }).filter(m => isFinite(m.pH));
+        marks.sort((a, b) => a.pH - b.pH);
+        const lastInLane = [];
+        marks.forEach(m => {
+            const left = Math.max(0, Math.min(14, m.pH)) / 14 * 100;
+            m.left = left;
+            let lane = 0;
+            while (lane < 3 && lastInLane[lane] !== undefined && lastInLane[lane] > left - 3.4) lane++;
+            lastInLane[lane] = left;
+            m.lane = Math.min(lane, 3);
+        });
+        return `<div class="ph-ruler">
+            <div class="ph-scale"></div>
+            <div class="ph-marks">
+                ${marks.slice(0, 60).map(m => `<span class="ph-dot" style="left:${m.left.toFixed(2)}%;top:${m.lane * 15}px;background:${phColor(m.pH)}"
+                    title="${esc(m.name)} pH ${fmt(m.pH, 2)}" onclick="CHEM.acidDetail(${m.i})"></span>`).join('')}
+            </div>
+            <div class="ph-axis">${Array.from({ length: 15 }, (_, i) => `<span style="left:${(i / 14 * 100).toFixed(2)}%">${i}</span>`).join('')}</div>
+        </div>`;
+    }
+
+    CHEM.acidConc = function (c) {
+        CHEM.state.acidTable.c = c;
+        CHEM.pages.acidbase();
+    };
+    CHEM.acidConcCustom = function () {
+        const el = document.getElementById('acidC');
+        const v = el ? parseFloat(el.value) : NaN;
+        if (!(v > 0)) { CHEM.toast('请输入大于 0 的浓度'); return; }
+        CHEM.state.acidTable.c = v;
+        CHEM.pages.acidbase();
+    };
+
+    /* 点击物质：查看不同浓度下的 pH 与电离度 */
+    CHEM.acidDetail = function (i) {
+        const list = (CHEM.state.acidTable || {})._list || [];
+        const r = list[i];
+        if (!r) return;
+        const cs = [1, 0.1, 0.01, 0.001];
+        const rows = cs.map(c => {
+            const e = acidPH(r, c);
+            return `<tr>
+                <td class="num mono">${c}</td>
+                <td>${phPill(e.pH)}</td>
+                <td class="mono">${e.h.toExponential(2)}</td>
+                <td class="mono">${(KW / e.h).toExponential(2)}</td>
+                <td class="muted">${e.mode === 'strong' ? '完全电离（' + e.n + ' 元）' :
+                    e.mode === 'neutral' ? '不水解' :
+                        `${e.isBase ? 'Kb' : 'Ka'} = ${e.k.toExponential(2)}　α = ${fmt(e.alpha, 2)}%`}</td>
+            </tr>`;
+        }).join('');
+        UI.modal(`<div class="panel-title" style="font-size:1.35rem;">${esc(r.name)}<span class="sub">${esc(r.kind)} · ${esc(r.strength)}</span></div>
+            <div class="field" style="margin-bottom:10px;">
+                <span class="tag tag-gold mono" style="font-size:1rem;">${esc(CHEM.prettySafe(r.formula))}</span>
+                <span class="tag">${esc(r.pk)}</span>
+                <span class="tag">共轭 ${esc(r.conjugate)}</span>
+            </div>
+            <div class="tbl-wrap"><table class="tbl"><thead><tr>
+                <th>浓度 mol/L</th><th>pH</th><th>c(H⁺)</th><th>c(OH⁻)</th><th>说明</th>
+            </tr></thead><tbody>${rows}</tbody></table></div>
+            <div class="note" style="margin-top:12px;">${esc(r.desc)}</div>
+            <div class="note warn" style="margin-top:8px;">
+                稀释 10 倍时 pH 向 7 靠近约 0.5~1，越稀越接近中性；这是水的电离不可忽略所致。
+            </div>`);
+    };
 
     function tableBind() {
         const el = document.getElementById('acidKw');

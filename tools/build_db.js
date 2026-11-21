@@ -67,7 +67,10 @@ const SCHEMAS = {
     '溶解性.txt': { key: 'solubility', fields: ['name', 'formula', 'color', 'solubility', 'klass', 'desc'], required: 6 },
     '离子检验.txt': { key: 'ions', fields: ['ion', 'method', 'phenomenon', 'desc'], required: 4 },
     '化学常数.txt': { key: 'constants', fields: ['klass', 'name', 'symbol', 'value', 'unit', 'desc'], required: 6 },
-    '实验.txt': { key: 'experiments', fields: ['name', 'phenomenon', 'conclusion', 'caution'], required: 4 }
+    '实验.txt': { key: 'experiments', fields: ['name', 'phenomenon', 'conclusion', 'caution'], required: 4 },
+    '反应现象.txt': { key: 'reactions', fields: ['a', 'b', 'phenomenon', 'equation', 'desc', 'danger'], required: 6 },
+    '实验步骤.txt': { key: 'procedures', fields: ['name', 'klass', 'tools', 'steps', 'phenomenon', 'conclusion', 'safety'], required: 7 },
+    '器材.txt': { key: 'labware', fields: ['name', 'klass', 'use', 'points', 'caution'], required: 5 }
 };
 
 function readTable(file) {
@@ -113,7 +116,7 @@ function main() {
 
     const payload = {
         generated: new Date().toISOString(),
-        version: '3.1',
+        version: '3.2',
         data: db
     };
 

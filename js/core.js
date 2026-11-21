@@ -6,7 +6,7 @@
     'use strict';
 
     const CHEM = window.CHEM = window.CHEM || {};
-    CHEM.version = '3.1';
+    CHEM.version = '3.2';
 
     /* ============================================================
      *  一、数据集定义
@@ -25,14 +25,18 @@
         { file: '溶解性.txt', key: 'solubility', min: 6, fields: ['name', 'formula', 'color', 'solubility', 'klass', 'desc'] },
         { file: '离子检验.txt', key: 'ions', min: 4, fields: ['ion', 'method', 'phenomenon', 'desc'] },
         { file: '化学常数.txt', key: 'constants', min: 6, fields: ['klass', 'name', 'symbol', 'value', 'unit', 'desc'] },
-        { file: '实验.txt', key: 'experiments', min: 4, fields: ['name', 'phenomenon', 'conclusion', 'caution'] }
+        { file: '实验.txt', key: 'experiments', min: 4, fields: ['name', 'phenomenon', 'conclusion', 'caution'] },
+        { file: '反应现象.txt', key: 'reactions', min: 6, fields: ['a', 'b', 'phenomenon', 'equation', 'desc', 'danger'] },
+        { file: '实验步骤.txt', key: 'procedures', min: 7, fields: ['name', 'klass', 'tools', 'steps', 'phenomenon', 'conclusion', 'safety'] },
+        { file: '器材.txt', key: 'labware', min: 5, fields: ['name', 'klass', 'use', 'points', 'caution'] }
     ];
     CHEM.DATASETS = DATASETS;
 
     CHEM.DB = {
         elements: [], equations: [], molecules: [], radicals: [], questions: [],
         acids: [], indicators: [], organics: [], organicReactions: [],
-        aliases: [], solubility: [], ions: [], constants: [], experiments: []
+        aliases: [], solubility: [], ions: [], constants: [], experiments: [],
+        reactions: [], procedures: [], labware: []
     };
     CHEM.WEIGHTS = {};
     CHEM.source = 'none';
@@ -189,6 +193,9 @@
             { key: 'ions', label: '离子检验', cat: '离子检验', n: (d.ions || []).length, file: '离子检验.txt' },
             { key: 'constants', label: '常数', cat: '常数', n: (d.constants || []).length, file: '化学常数.txt' },
             { key: 'experiments', label: '实验', cat: '实验', n: (d.experiments || []).length, file: '实验.txt' },
+            { key: 'reactions', label: '反应现象', cat: '反应现象', n: (d.reactions || []).length, file: '反应现象.txt' },
+            { key: 'procedures', label: '实验流程', cat: '实验流程', n: (d.procedures || []).length, file: '实验步骤.txt' },
+            { key: 'labware', label: '仪器器材', cat: '器材', n: (d.labware || []).length, file: '器材.txt' },
             { key: 'questions', label: '题目', cat: '题目', n: d.questions.length, file: '问题.txt' }
         ];
     };
@@ -858,10 +865,19 @@
      * ============================================================ */
     CHEM.pages = CHEM.pages || {};
 
+    /* 页面 → 子标签切换函数（支持 #acidbase~table 这样的深链接） */
+    const TAB_FN = {
+        acidbase: 'acidTab', lab: 'labTab', organic: 'orgTab',
+        database: 'dbTab', refs: 'refTab'
+    };
+
     CHEM.go = function (key) {
-        if (!CHEM.pages[key]) key = 'home';
+        const parts = String(key || '').split('~');
+        const page = parts[0], sub = parts[1] || '';
+        key = CHEM.pages[page] ? page : 'home';
         try {
-            if (location.hash.slice(1) !== key) history.replaceState(null, '', '#' + key);
+            const want = '#' + key + (sub ? '~' + sub : '');
+            if (location.hash !== want) history.replaceState(null, '', want);
         } catch (e) { /* file:// 下部分浏览器禁止，忽略 */ }
         const fn = CHEM.pages[key];
         if (!fn) return;
@@ -876,6 +892,14 @@
             try { panel.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { /* 老浏览器忽略 */ }
         }
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.toggle('active', b.dataset.page === key));
+
+        /* 子标签深链接：如 #lab~titrate */
+        const tabFn = TAB_FN[key];
+        if (sub && tabFn && typeof CHEM[tabFn] === 'function' && !CHEM._tabJump) {
+            CHEM._tabJump = true;
+            try { CHEM[tabFn](sub); } catch (e) { /* 子标签名无效则保持默认 */ }
+            CHEM._tabJump = false;
+        }
     };
     window.CHEM_GO = CHEM.go;
 
@@ -895,10 +919,10 @@
             badge.title = CHEM.source === 'files' ? '已从同目录 txt 文件读取' :
                 CHEM.source === 'snapshot' ? 'fetch 不可用（file:// 直接打开），已使用 db.js 快照' : '请检查数据文件';
         }
-        /* 3) 首页（支持 #page 直接定位） */
+        /* 3) 首页（支持 #page 与 #page~tab 直接定位） */
         const start = (location.hash || '').replace('#', '');
         CHEM._noScroll = true;                 /* 首次进入不要跳过报头 */
-        CHEM.go(CHEM.pages[start] ? start : 'home');
+        CHEM.go(CHEM.pages[String(start).split('~')[0]] ? start : 'home');
         CHEM._noScroll = false;
     };
 })();

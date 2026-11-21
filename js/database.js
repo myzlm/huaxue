@@ -97,69 +97,116 @@
     function buildRows() {
         const rows = [];
         const d = CHEM.DB;
-        (d.elements || []).forEach(e => rows.push({
-            cat: '元素', title: `${e.symbol}　${e.name}`,
-            sub: `原子序数 ${e.num}　原子量 ${e.mass}　化合价 ${e.valence}　${e.type}`,
-            kw: `${e.symbol} ${e.name} ${e.type} ${e.valence} ${e.props}`, page: 'periodic', act: `CHEM.showElement('${e.symbol}')`
-        }));
-        (d.molecules || []).forEach(m => rows.push({
-            cat: '分子', title: m.name, sub: `${m.formula}　Mr ${m.weight}　${m.type}　${m.desc}`,
-            kw: `${m.name} ${m.formula} ${m.type} ${m.desc}`, page: 'molecules'
-        }));
-        (d.equations || []).forEach(e => rows.push({
-            cat: '方程式', title: e.equation, sub: `${e.type}　${e.desc}`,
-            kw: `${e.equation} ${e.type} ${e.desc}`, page: 'equations'
-        }));
-        (d.radicals || []).forEach(r => rows.push({
-            cat: '原子团', title: `${r.name}　${r.formula}`, sub: `电荷 ${r.charge}　${r.desc}`,
-            kw: `${r.name} ${r.formula} ${r.charge} ${r.desc}`, page: 'radicals'
-        }));
-        (d.acids || []).forEach(a => rows.push({
-            cat: '酸碱', title: `${a.name}　${a.formula}`, sub: `${a.kind}·${a.strength}　${a.pk}　共轭 ${a.conjugate}　${a.desc}`,
-            kw: `${a.name} ${a.formula} ${a.kind} ${a.strength} ${a.pk} ${a.desc}`, page: 'acidbase'
-        }));
-        (d.organics || []).forEach(o => rows.push({
-            cat: '有机物', title: `${o.klass}　${o.example}`, sub: `${o.formula}　官能团 ${o.group}　通式 ${o.general}　${o.props}`,
-            kw: `${o.klass} ${o.example} ${o.formula} ${o.group} ${o.general} ${o.props}`, page: 'organic'
-        }));
-        (d.organicReactions || []).forEach(r => rows.push({
-            cat: '有机反应', title: r.equation, sub: `${r.type}　条件 ${r.condition}　${r.desc}`,
-            kw: `${r.equation} ${r.type} ${r.condition} ${r.desc}`, page: 'organic'
-        }));
-        (d.indicators || []).forEach(i => rows.push({
-            cat: '指示剂', title: `${i.name}　${i.range}`,
-            sub: `酸色 ${i.acidColor}　碱色 ${i.baseColor}　${i.use}`,
-            kw: `${i.name} ${i.range} ${i.acidColor} ${i.baseColor} ${i.use}`, page: 'acidbase'
-        }));
-        (d.aliases || []).forEach(a => rows.push({
-            cat: '俗名', title: `${a.alias}　→　${a.chem}`,
-            sub: `${a.formula}　${a.desc}`,
-            kw: `${a.alias} ${a.chem} ${a.formula} ${a.desc}`, page: 'refs'
-        }));
-        (d.solubility || []).forEach(s => rows.push({
-            cat: '溶解性', title: `${s.name}　${s.formula}`,
-            sub: `${s.color}　${s.solubility}　${s.klass}　${s.desc}`,
-            kw: `${s.name} ${s.formula} ${s.color} ${s.solubility} ${s.klass} ${s.desc}`, page: 'refs'
-        }));
-        (d.ions || []).forEach(i => rows.push({
-            cat: '离子检验', title: i.ion,
-            sub: `${i.method}　→　${i.phenomenon}　${i.desc}`,
-            kw: `${i.ion} ${i.method} ${i.phenomenon} ${i.desc}`, page: 'refs'
-        }));
-        (d.constants || []).forEach(c => rows.push({
-            cat: '常数', title: `${c.name}${c.symbol && c.symbol !== '—' ? '　' + c.symbol : ''}`,
-            sub: `${c.value} ${c.unit}　${c.klass}　${c.desc}`,
-            kw: `${c.klass} ${c.name} ${c.symbol} ${c.value} ${c.unit} ${c.desc}`, page: 'refs'
-        }));
-        (d.experiments || []).forEach(x => rows.push({
-            cat: '实验', title: x.name,
-            sub: `${x.phenomenon}　${x.conclusion}　注意：${x.caution}`,
-            kw: `${x.name} ${x.phenomenon} ${x.conclusion} ${x.caution}`, page: 'refs'
-        }));
-        (d.questions || []).forEach(q => rows.push({
-            cat: '题目', title: q.question, sub: `${q.type}·${q.level}　答案 ${q.answer}　${q.explain}`,
-            kw: `${q.question} ${q.type} ${q.explain}`, page: 'practice'
-        }));
+        const push = (cat, title, sub, kw, page, detail, act, actLabel) => rows.push({
+            cat: cat, title: title, sub: sub, kw: kw, page: page, detail: detail || [],
+            act: act, actLabel: actLabel || '查看'
+        });
+
+        (d.elements || []).forEach(e => push('元素', `${e.symbol}　${e.name}`,
+            `原子序数 ${e.num}　原子量 ${e.mass}　化合价 ${e.valence}　${e.type}`,
+            `${e.symbol} ${e.name} ${e.type} ${e.valence} ${e.props}`, 'periodic',
+            [['符号', e.symbol], ['名称', e.name], ['原子序数', e.num], ['相对原子质量', e.mass],
+            ['化合价', e.valence], ['类别', e.type], ['周期 / 族', `${e.period} / ${e.group}`],
+            ['电子排布', e.electron], ['发现年份', e.year], ['发现者', e.discoverer], ['性质', e.props]],
+            `CHEM.showElement('${e.symbol}')`));
+
+        (d.molecules || []).forEach(m => push('分子', m.name,
+            `${m.formula}　Mr ${m.weight}　${m.type}　${m.desc}`,
+            `${m.name} ${m.formula} ${m.type} ${m.desc}`, 'molecules',
+            [['名称', m.name], ['化学式', m.formula], ['相对分子质量', m.weight], ['类别', m.type], ['说明', m.desc]]));
+
+        (d.equations || []).forEach(e => push('方程式', e.equation, `${e.type}　${e.desc}`,
+            `${e.equation} ${e.type} ${e.desc}`, 'equations',
+            [['方程式', e.equation], ['类型', e.type], ['说明', e.desc]],
+            `CHEM.sendToBalance('${esc(e.equation)}')`, '去配平'));
+
+        (d.radicals || []).forEach(r => push('原子团', `${r.name}　${r.formula}`,
+            `电荷 ${r.charge}　${r.desc}`, `${r.name} ${r.formula} ${r.charge} ${r.desc}`, 'radicals',
+            [['名称', r.name], ['化学式', r.formula], ['电荷', r.charge], ['说明', r.desc]]));
+
+        (d.acids || []).forEach(a => {
+            let ph = '';
+            try {
+                const e = CHEM.acidPH ? CHEM.acidPH(a, 0.1) : null;
+                if (e && isFinite(e.pH)) ph = `　pH(0.1M) ${e.pH.toFixed(2)}`;
+            } catch (err) { /* 忽略 */ }
+            push('酸碱', `${a.name}　${a.formula}`,
+                `${a.kind}·${a.strength}　${a.pk}${ph}　共轭 ${a.conjugate}　${a.desc}`,
+                `${a.name} ${a.formula} ${a.kind} ${a.strength} ${a.pk} ${a.desc} ${ph}`, 'acidbase',
+                [['名称', a.name], ['化学式', a.formula], ['类别', a.kind], ['强弱', a.strength],
+                ['pK', a.pk], ['0.1 mol/L 时 pH', ph.replace(/^　pH\(0\.1M\)\s*/, '') || '—'],
+                ['共轭', a.conjugate], ['特性与用途', a.desc]]);
+        });
+
+        (d.organics || []).forEach(o => push('有机物', `${o.klass}　${o.example}`,
+            `${o.formula}　官能团 ${o.group}　通式 ${o.general}　${o.props}`,
+            `${o.klass} ${o.example} ${o.formula} ${o.group} ${o.general} ${o.props}`, 'organic',
+            [['类别', o.klass], ['代表物', o.example], ['化学式', o.formula], ['官能团', o.group],
+            ['通式', o.general], ['性质与用途', o.props]]));
+
+        (d.organicReactions || []).forEach(r => push('有机反应', r.equation,
+            `${r.type}　条件 ${r.condition}　${r.desc}`,
+            `${r.equation} ${r.type} ${r.condition} ${r.desc}`, 'organic',
+            [['方程式', r.equation], ['类型', r.type], ['条件', r.condition], ['说明', r.desc]]));
+
+        (d.indicators || []).forEach(i => push('指示剂', `${i.name}　${i.range}`,
+            `酸色 ${i.acidColor}　碱色 ${i.baseColor}　${i.use}`,
+            `${i.name} ${i.range} ${i.acidColor} ${i.baseColor} ${i.use}`, 'acidbase',
+            [['指示剂', i.name], ['变色范围', i.range], ['酸色', i.acidColor],
+            ['碱色', i.baseColor], ['典型用途', i.use]]));
+
+        (d.aliases || []).forEach(a => push('俗名', `${a.alias}　→　${a.chem}`,
+            `${a.formula}　${a.desc}`, `${a.alias} ${a.chem} ${a.formula} ${a.desc}`, 'refs',
+            [['俗名', a.alias], ['化学名称', a.chem], ['化学式', a.formula], ['说明', a.desc]]));
+
+        (d.solubility || []).forEach(s => push('溶解性', `${s.name}　${s.formula}`,
+            `${s.color}　${s.solubility}　${s.klass}　${s.desc}`,
+            `${s.name} ${s.formula} ${s.color} ${s.solubility} ${s.klass} ${s.desc}`, 'refs',
+            [['名称', s.name], ['化学式', s.formula], ['颜色', s.color], ['溶解性', s.solubility],
+            ['类别', s.klass], ['说明', s.desc]]));
+
+        (d.ions || []).forEach(i => push('离子检验', i.ion,
+            `${i.method}　→　${i.phenomenon}　${i.desc}`,
+            `${i.ion} ${i.method} ${i.phenomenon} ${i.desc}`, 'refs',
+            [['离子', i.ion], ['检验方法', i.method], ['现象', i.phenomenon], ['说明', i.desc]]));
+
+        (d.constants || []).forEach(c => push('常数', `${c.name}${c.symbol && c.symbol !== '—' ? '　' + c.symbol : ''}`,
+            `${c.value} ${c.unit}　${c.klass}　${c.desc}`,
+            `${c.klass} ${c.name} ${c.symbol} ${c.value} ${c.unit} ${c.desc}`, 'refs',
+            [['类别', c.klass], ['名称', c.name], ['符号', c.symbol], ['数值', c.value],
+            ['单位', c.unit], ['说明', c.desc]]));
+
+        (d.experiments || []).forEach(x => push('实验', x.name,
+            `${x.phenomenon}　${x.conclusion}　注意：${x.caution}`,
+            `${x.name} ${x.phenomenon} ${x.conclusion} ${x.caution}`, 'refs',
+            [['实验', x.name], ['现象', x.phenomenon], ['结论 / 方程式', x.conclusion], ['注意事项', x.caution]]));
+
+        (d.reactions || []).forEach(r => push('反应现象', `${r.a} + ${r.b}`,
+            `${r.phenomenon}　${r.equation}　危险度 ${r.danger}`,
+            `${r.a} ${r.b} ${r.phenomenon} ${r.equation} ${r.desc} ${r.danger}`, 'lab',
+            [['试剂 A', r.a], ['试剂 B', r.b], ['现象', r.phenomenon], ['方程式', r.equation],
+            ['说明', r.desc], ['危险度', r.danger]],
+            `CHEM.mixPreset('${esc(r.a)}','${esc(r.b)}')`, '去做实验'));
+
+        (d.procedures || []).forEach((p, i) => push('实验流程', p.name,
+            `${p.klass}　共 ${String(p.steps || '').split(/[；|]/).filter(s => s.trim()).length} 步　${p.phenomenon}`,
+            `${p.name} ${p.klass} ${p.tools} ${p.steps} ${p.phenomenon} ${p.conclusion} ${p.safety}`, 'lab',
+            [['实验', p.name], ['类别', p.klass], ['器材', String(p.tools || '').split('|').join('、')],
+            ['步骤', String(p.steps || '').split(/[；|]/).map((s, j) => (j + 1) + '. ' + s).join('\n')],
+            ['现象', p.phenomenon], ['结论 / 原理', p.conclusion], ['安全', p.safety]],
+            `CHEM.flowPick(${i})`, '看步骤'));
+
+        (d.labware || []).forEach(w => push('器材', w.name,
+            `${w.klass}　${w.use}`,
+            `${w.name} ${w.klass} ${w.use} ${w.points} ${w.caution}`, 'lab',
+            [['名称', w.name], ['类别', w.klass], ['用途', w.use], ['使用要点', w.points], ['注意', w.caution]]));
+
+        (d.questions || []).forEach(q => push('题目', q.question,
+            `${q.type}·${q.level}　答案 ${q.answer}　${q.explain}`,
+            `${q.question} ${q.type} ${q.explain}`, 'practice',
+            [['类型', q.type], ['难度', q.level], ['题目', q.question],
+            ['A', q.A], ['B', q.B], ['C', q.C], ['D', q.D], ['答案', q.answer], ['解析', q.explain]]));
+
         return rows;
     }
 
@@ -202,13 +249,18 @@
 
     CHEM.dbTab = function (t) { CHEM.state.db.tab = t; CHEM.pages.database(); };
 
-    /* ---------- 关键词高亮 ---------- */
+    /* ---------- 关键词高亮（支持空格分隔的多个词） ---------- */
+    function tokens(kw) {
+        return String(kw === undefined || kw === null ? '' : kw).trim().split(/\s+/).filter(Boolean);
+    }
     function hl(text, kw) {
         const s = String(text === undefined || text === null ? '' : text);
-        if (!kw) return esc(s);
+        const list = Array.isArray(kw) ? kw : tokens(kw);
+        if (!list.length) return esc(s);
         let re;
-        try { re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'); }
-        catch (e) { return esc(s); }
+        try {
+            re = new RegExp('(' + list.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+        } catch (e) { return esc(s); }
         let out = '', last = 0, m;
         while ((m = re.exec(s)) !== null) {
             if (m[0] === '') { re.lastIndex++; continue; }
@@ -224,24 +276,33 @@
         const all = allRows();
         const cats = ['全部'].concat(Array.from(new Set(all.map(r => r.cat))));
         const kwRaw = st.kw.trim();
-        const kw = kwRaw.toLowerCase();
+        const kws = tokens(kwRaw).map(t => t.toLowerCase());
 
         let list = all;
         if (st.cat !== '全部') list = list.filter(r => r.cat === st.cat);
-        if (kw) list = list.filter(r => (r.title + ' ' + r.sub + ' ' + r.kw).toLowerCase().includes(kw));
+        if (kws.length) list = list.filter(r => {
+            const hay = (r.title + ' ' + r.sub + ' ' + r.kw).toLowerCase();
+            return kws.every(k => hay.includes(k));
+        });
         CHEM.state.db._rows = list;
 
-        const isBare = !kw && st.cat === '全部';
+        const isBare = !kws.length && st.cat === '全部';
         const countOf = c => all.filter(r => r.cat === c).length;
+        const hist = store.get('dbHist', []);
 
         return `
         <div class="field">
-            <input type="text" id="dbKw" placeholder="输入任意关键词：硫酸钡、pH、酯化、Fe3+、胆矾、银镜、Ksp …"
+            <input type="text" id="dbKw" placeholder="输入关键词：硫酸钡、pH、酯化、Fe3+、胆矾、银镜、Ksp …（空格分隔多个词＝同时满足）"
                    value="${esc(st.kw)}" style="flex:3;min-width:220px;">
             <button class="btn btn-primary" onclick="CHEM.dbSearch()">检索</button>
             <button class="btn" onclick="CHEM.dbReset()">重置</button>
             ${!isBare ? `<button class="btn btn-sm" onclick="CHEM.dbExportCSV()">导出结果</button>` : ''}
         </div>
+        ${hist.length && isBare ? `<div class="chip-row" style="margin-bottom:10px;">
+            <span class="muted" style="font-size:.76rem;align-self:center;">最近：</span>
+            ${hist.map(h => `<span class="chip" style="font-size:.76rem;" onclick="CHEM.dbHistGo('${esc(h)}')">${esc(h)}</span>`).join('')}
+            <span class="chip" style="font-size:.76rem;opacity:.7;" onclick="CHEM.dbHistClear()">清空</span>
+        </div>` : ''}
         <div class="chip-row" style="margin-bottom:10px;">
             ${cats.map(c => `<span class="chip ${c === st.cat ? 'on' : ''}" onclick="CHEM.dbCat('${c}')">${c}${c === '全部' ? '' : ` <span class="muted">${countOf(c)}</span>`}</span>`).join('')}
         </div>
@@ -256,19 +317,60 @@
                 <div class="item">
                     <div class="item-head">
                         <span class="tag tag-gold">${r.cat}</span>
-                        <span class="item-title mono">${hl(r.title, kwRaw)}</span>
+                        <span class="item-title mono" style="cursor:pointer;" onclick="CHEM.dbDetail(${i})">${hl(r.title, kws)}</span>
                         <span style="margin-left:auto;display:flex;gap:6px;flex:none;align-items:center;">
-                            ${r.act ? `<button class="btn btn-sm" onclick="${r.act}">查看</button>` : ''}
+                            <button class="btn btn-sm" onclick="CHEM.dbDetail(${i})">详情</button>
+                            ${r.act ? `<button class="btn btn-sm" onclick="${r.act}">${esc(r.actLabel || '查看')}</button>` : ''}
                             ${CHEM.favBtn(r.cat, r.title, r.sub, r.page)}
                         </span>
                     </div>
-                    <div class="item-desc">${hl(r.sub, kwRaw)}</div>
+                    <div class="item-desc">${hl(r.sub, kws)}</div>
                 </div>`).join('')}
         </div>
         ${(!isBare && list.length > st.limit) ? `<div style="text-align:center;margin-top:14px;">
             <button class="btn" onclick="CHEM.dbMore()">继续展开（还有 ${list.length - st.limit} 条）</button></div>` : ''}
-        ${(!isBare && list.length === 0) ? UI.note('没有找到匹配的记录，试试更短的关键词，或换个说法（如「胆矾」→「硫酸铜」）。', 'warn') : ''}`;
+        ${(!isBare && list.length === 0) ? UI.note('没有找到匹配的记录。多个关键词之间是「同时满足」，试试减少关键词或换更短的说法（如「胆矾」→「硫酸铜」）。', 'warn') : ''}`;
     }
+
+    /* 记录详情：把一条数据的全部字段摊开 */
+    CHEM.dbDetail = function (i) {
+        const r = (CHEM.state.db._rows || [])[i];
+        if (!r) return;
+        const rows = (r.detail || []).filter(([, v]) => v !== undefined && v !== '' && v !== '—');
+        UI.modal(`<div class="panel-title" style="font-size:1.25rem;">${esc(r.cat)}<span class="sub">记录详情</span></div>
+            <div class="mono" style="font-size:1rem;color:#f4e3bb;line-height:1.8;margin-bottom:12px;overflow-wrap:anywhere;">${esc(r.title)}</div>
+            ${rows.length ? `<div class="tbl-wrap"><table class="tbl"><tbody>
+                ${rows.map(([k, v]) => `<tr>
+                    <td style="width:110px;color:var(--gold-dim);white-space:nowrap;">${esc(k)}</td>
+                    <td style="color:var(--ink-2);line-height:1.85;white-space:pre-line;">${esc(v)}</td>
+                </tr>`).join('')}
+            </tbody></table></div>` : `<div class="muted">${esc(r.sub)}</div>`}
+            <div class="field" style="margin-top:16px;">
+                ${r.page ? `<button class="btn btn-sm" onclick="CHEM.ui.closeModal();CHEM.go('${r.page}')">前往「${esc({
+            periodic: '周期表', molecules: '分子查询', equations: '方程式库', radicals: '原子团',
+            acidbase: '酸碱世界', organic: '有机天地', refs: '速查手册', practice: '练一练',
+            lab: '实验室', balance: '配平'
+        }[r.page] || r.page)}」</button>` : ''}
+                ${r.act ? `<button class="btn btn-sm" onclick="CHEM.ui.closeModal();${r.act}">${esc(r.actLabel || '查看')}</button>` : ''}
+                ${CHEM.favBtn(r.cat, r.title, r.sub, r.page)}
+            </div>`);
+    };
+
+    CHEM.sendToBalance = function (eq) {
+        CHEM.go('balance');
+        const el = document.getElementById('balInput');
+        if (el) el.value = eq;
+    };
+
+    CHEM.dbHistGo = function (k) {
+        CHEM.state.db.kw = k;
+        CHEM.state.db.limit = PAGE;
+        CHEM.pages.database();
+    };
+    CHEM.dbHistClear = function () {
+        store.set('dbHist', []);
+        CHEM.pages.database();
+    };
 
     function overview(all, countOf) {
         const stats = CHEM.stats();
@@ -278,6 +380,7 @@
             输入关键词即可跨库检索，或点上方的分类只看某一类。
             例：<span class="mono">硫酸钡</span>、<span class="mono">pH</span>、<span class="mono">酯化</span>、
             <span class="mono">胆矾</span>、<span class="mono">银镜</span>、<span class="mono">Ksp</span>。
+            多个关键词用空格分隔表示<b>同时满足</b>，如 <span class="mono">铁 沉淀</span>。
         </div>
         <div class="stat-grid" style="margin-top:12px;">
             ${stats.map(s => `<div class="stat-card" style="cursor:pointer" onclick="CHEM.dbCat('${s.cat}')">
@@ -295,8 +398,14 @@
 
     CHEM.dbSearch = function () {
         const el = document.getElementById('dbKw');
-        CHEM.state.db.kw = el ? el.value.trim() : '';
+        const kw = el ? el.value.trim() : '';
+        CHEM.state.db.kw = kw;
         CHEM.state.db.limit = PAGE;
+        if (kw) {
+            const h = store.get('dbHist', []).filter(x => x !== kw);
+            h.unshift(kw);
+            store.set('dbHist', h.slice(0, 8));
+        }
         CHEM.pages.database();
     };
     CHEM.dbCat = function (c) {
