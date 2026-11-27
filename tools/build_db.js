@@ -70,7 +70,10 @@ const SCHEMAS = {
     '实验.txt': { key: 'experiments', fields: ['name', 'phenomenon', 'conclusion', 'caution'], required: 4 },
     '反应现象.txt': { key: 'reactions', fields: ['a', 'b', 'phenomenon', 'equation', 'desc', 'danger'], required: 6 },
     '实验步骤.txt': { key: 'procedures', fields: ['name', 'klass', 'tools', 'steps', 'phenomenon', 'conclusion', 'safety'], required: 7 },
-    '器材.txt': { key: 'labware', fields: ['name', 'klass', 'use', 'points', 'caution'], required: 5 }
+    '器材.txt': { key: 'labware', fields: ['name', 'klass', 'use', 'points', 'caution'], required: 5 },
+    '合金.txt': { key: 'alloys', fields: ['name', 'klass', 'composition', 'grade', 'density', 'melting', 'feature', 'use'], required: 8 },
+    '合金元素.txt': { key: 'alloyElements', fields: ['name', 'symbol', 'apply', 'role', 'effect', 'desc'], required: 6 },
+    '合金相图.txt': { key: 'phaseDiagrams', fields: ['system', 'type', 'a', 'b', 'mpA', 'mpB', 'eutecticT', 'eutecticC', 'desc'], required: 9 }
 };
 
 function readTable(file) {
@@ -116,7 +119,7 @@ function main() {
 
     const payload = {
         generated: new Date().toISOString(),
-        version: '3.2',
+        version: '3.3',
         data: db
     };
 

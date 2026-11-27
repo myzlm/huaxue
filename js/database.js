@@ -201,6 +201,27 @@
             `${w.name} ${w.klass} ${w.use} ${w.points} ${w.caution}`, 'lab',
             [['名称', w.name], ['类别', w.klass], ['用途', w.use], ['使用要点', w.points], ['注意', w.caution]]));
 
+        (d.alloys || []).forEach(a => push('合金', a.name,
+            `${a.klass}　${a.composition}　${a.feature}`,
+            `${a.name} ${a.klass} ${a.composition} ${a.grade} ${a.feature} ${a.use}`, 'alloy',
+            [['名称', a.name], ['类别', a.klass], ['主要成分', a.composition], ['典型牌号', a.grade],
+            ['密度', a.density + ' g/cm³'], ['熔点', a.melting + ' ℃'], ['特性', a.feature], ['用途', a.use]],
+            `CHEM.alloyDetail('${esc(a.name)}')`, '看详情'));
+
+        (d.alloyElements || []).forEach(e => push('合金元素', `${e.name}　${e.symbol}`,
+            `${e.apply}　${e.role}　${e.effect}`,
+            `${e.name} ${e.symbol} ${e.apply} ${e.role} ${e.effect} ${e.desc}`, 'alloy',
+            [['元素', e.name], ['符号', e.symbol], ['主要应用', e.apply], ['作用', e.role],
+            ['影响', e.effect], ['说明', e.desc]]));
+
+        (d.phaseDiagrams || []).forEach(p => push('相图', `${p.system}　${p.type}`,
+            `${p.a}—${p.b}　共晶 ${p.eutecticT} ${p.eutecticC}　${p.desc}`,
+            `${p.system} ${p.type} ${p.a} ${p.b} ${p.desc}`, 'alloy',
+            [['体系', p.system], ['类型', p.type], ['组元A', p.a], ['组元B', p.b],
+            ['熔点A', p.mpA + ' ℃'], ['熔点B', p.mpB + ' ℃'], ['共晶温度', p.eutecticT],
+            ['共晶成分', p.eutecticC], ['说明', p.desc]],
+            `CHEM.phasePick('${esc(p.system)}');CHEM.go('alloy~phase')`, '看相图'));
+
         (d.questions || []).forEach(q => push('题目', q.question,
             `${q.type}·${q.level}　答案 ${q.answer}　${q.explain}`,
             `${q.question} ${q.type} ${q.explain}`, 'practice',

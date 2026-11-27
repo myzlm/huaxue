@@ -6,7 +6,7 @@
     'use strict';
 
     const CHEM = window.CHEM = window.CHEM || {};
-    CHEM.version = '3.2';
+    CHEM.version = '3.3';
 
     /* ============================================================
      *  一、数据集定义
@@ -28,7 +28,10 @@
         { file: '实验.txt', key: 'experiments', min: 4, fields: ['name', 'phenomenon', 'conclusion', 'caution'] },
         { file: '反应现象.txt', key: 'reactions', min: 6, fields: ['a', 'b', 'phenomenon', 'equation', 'desc', 'danger'] },
         { file: '实验步骤.txt', key: 'procedures', min: 7, fields: ['name', 'klass', 'tools', 'steps', 'phenomenon', 'conclusion', 'safety'] },
-        { file: '器材.txt', key: 'labware', min: 5, fields: ['name', 'klass', 'use', 'points', 'caution'] }
+        { file: '器材.txt', key: 'labware', min: 5, fields: ['name', 'klass', 'use', 'points', 'caution'] },
+        { file: '合金.txt', key: 'alloys', min: 8, fields: ['name', 'klass', 'composition', 'grade', 'density', 'melting', 'feature', 'use'] },
+        { file: '合金元素.txt', key: 'alloyElements', min: 6, fields: ['name', 'symbol', 'apply', 'role', 'effect', 'desc'] },
+        { file: '合金相图.txt', key: 'phaseDiagrams', min: 9, fields: ['system', 'type', 'a', 'b', 'mpA', 'mpB', 'eutecticT', 'eutecticC', 'desc'] }
     ];
     CHEM.DATASETS = DATASETS;
 
@@ -36,7 +39,8 @@
         elements: [], equations: [], molecules: [], radicals: [], questions: [],
         acids: [], indicators: [], organics: [], organicReactions: [],
         aliases: [], solubility: [], ions: [], constants: [], experiments: [],
-        reactions: [], procedures: [], labware: []
+        reactions: [], procedures: [], labware: [],
+        alloys: [], alloyElements: [], phaseDiagrams: []
     };
     CHEM.WEIGHTS = {};
     CHEM.source = 'none';
@@ -196,6 +200,9 @@
             { key: 'reactions', label: '反应现象', cat: '反应现象', n: (d.reactions || []).length, file: '反应现象.txt' },
             { key: 'procedures', label: '实验流程', cat: '实验流程', n: (d.procedures || []).length, file: '实验步骤.txt' },
             { key: 'labware', label: '仪器器材', cat: '器材', n: (d.labware || []).length, file: '器材.txt' },
+            { key: 'alloys', label: '合金', cat: '合金', n: (d.alloys || []).length, file: '合金.txt' },
+            { key: 'alloyElements', label: '合金元素', cat: '合金元素', n: (d.alloyElements || []).length, file: '合金元素.txt' },
+            { key: 'phaseDiagrams', label: '相图体系', cat: '相图', n: (d.phaseDiagrams || []).length, file: '合金相图.txt' },
             { key: 'questions', label: '题目', cat: '题目', n: d.questions.length, file: '问题.txt' }
         ];
     };
@@ -867,7 +874,7 @@
 
     /* 页面 → 子标签切换函数（支持 #acidbase~table 这样的深链接） */
     const TAB_FN = {
-        acidbase: 'acidTab', lab: 'labTab', organic: 'orgTab',
+        acidbase: 'acidTab', lab: 'labTab', organic: 'orgTab', alloy: 'alloyTab',
         database: 'dbTab', refs: 'refTab'
     };
 
